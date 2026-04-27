@@ -80,15 +80,15 @@ public class FinancialTracker {
         try {
             File file = new File(fileName); // stores file inside new File object
 
-            //create file if it doesnt exist
+            // create file if it doesnt exist
             if (!file.exists()){
                 file.createNewFile();
             }
             BufferedReader br = new BufferedReader(new FileReader(file));
             String line;
 
-            while ((line = br.readLine()) != null) {    //while line isnt null keep reading
-                String[] tokens = line.split("\\|"); //split line each time it reads '|'
+            while ((line = br.readLine()) != null) {    // while line isnt null keep reading
+                String[] tokens = line.split("\\|"); // split line each time it reads '|'
 
                 String date = tokens[0];
                 String time = tokens[1];
@@ -118,8 +118,43 @@ public class FinancialTracker {
      */
     private static void addDeposit(Scanner scanner) {
         // TODO
+        // date + time user input and parse
+        try {
+            System.out.print("Enter date and time (yyyy-MM-dd HH:mm:ss");
+            String dateTimeInput = scanner.nextLine().trim();
 
+            String[] tokens = dateTimeInput.split(" ");
+            String date = tokens[0];
+            String time = tokens[1];
+
+            // description
+            System.out.print("Enter description: ");
+            String description = scanner.nextLine().trim().trim();
+
+            // vendor
+            System.out.print("Enter vendor: ");
+            String vendor = scanner.nextLine().trim();
+
+            // amount
+            System.out.print("Enter amount: ");
+            double amount = Double.parseDouble(scanner.nextLine().trim());
+
+            // make sure amount positive
+            if (amount <= 0) {
+                System.out.println("Deposit amount must be positive.");
+                return;
+            }
+            // creates transaction object using parsed data from file
+            Transaction transaction = new Transaction(date, time, description, vendor, amount);
+
+            transactions.add(transaction); // adds new transaction object into the transactions array list
+
+            System.out.println("Deposit added successfully.");
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Deposit not added.");
+        }
     }
+
 
     /**
      * Same prompts as addDeposit.
