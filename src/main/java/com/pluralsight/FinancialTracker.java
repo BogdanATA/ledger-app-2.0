@@ -254,7 +254,20 @@ public class FinancialTracker {
     /* ------------------------------------------------------------------
        Display helpers: show data in neat columns
        ------------------------------------------------------------------ */
-    private static void displayLedger() { /* TODO – print all transactions in column format */ }
+    private static void displayLedger() { /* TODO – print all transactions in column format */
+        System.out.printf("%-12s %-10s %-20s %-20s %s%n", "Date", "Time", "Description", "Vendor", "Amount");
+        System.out.println("-".repeat(75)); // creates line of dashes
+        for (Transaction transaction : transactions) { // Transaction = type | transaction = new variable created | transactions = array list
+            System.out.printf("%-12s %-10s %-20s %-20s %.2f%n", // aligns
+                    transaction.getDate().format(DATE_FMT),
+                    transaction.getTime().format(TIME_FMT),
+                    transaction.getDescription().length() > 20 // if description is longer than 20 characters
+                            ? transaction.getDescription().substring(0, 17) + "..." // takes characters from 0 to 16 and adds ... at the end so total characters is still 20
+                            : transaction.getDescription(), // if less than 20 characters long just prints it normally
+                    transaction.getVendor(),
+                    transaction.getAmount());
+        }
+    }
 
     private static void displayDeposits() { /* TODO – only amount > 0               */ }
 
