@@ -316,7 +316,7 @@ public class FinancialTracker {
 
             switch (input) {
                 case "1" -> {monthToDate();}
-                case "2" -> {/* TODO – previous month report */ }
+                case "2" -> {previousMonth(); }
                 case "3" -> {/* TODO – year-to-date report   */ }
                 case "4" -> {/* TODO – previous year report  */ }
                 case "5" -> {/* TODO – prompt for vendor then report */ }
@@ -334,6 +334,18 @@ public class FinancialTracker {
             if (!transaction.getDate().isBefore(startOfMonth) && !transaction.getDate().isAfter(today)) { // if date is not before start of month or after today
                 printTransaction(transaction);
             }
+        }
+    }
+    public static void previousMonth() {
+        LocalDate today = LocalDate.now();
+        LocalDate firstOfLastMonth = today.minusMonths(1).withDayOfMonth(1);
+        LocalDate lastOfLastMonth = firstOfLastMonth.withDayOfMonth(firstOfLastMonth.lengthOfMonth());
+
+        printLedgerHeader();
+        for (Transaction transaction : transactions) {
+            if (transaction.getDate().isBefore(firstOfLastMonth)) continue;
+            if(transaction.getDate().isAfter(lastOfLastMonth)) continue;
+            printTransaction(transaction);
         }
     }
 
