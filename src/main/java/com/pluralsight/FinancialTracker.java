@@ -318,7 +318,7 @@ public class FinancialTracker {
                 case "1" -> {monthToDate();}
                 case "2" -> {previousMonth(); }
                 case "3" -> {yearToDate(); }
-                case "4" -> {/* TODO – previous year report  */ }
+                case "4" -> {previousYear(); }
                 case "5" -> {/* TODO – prompt for vendor then report */ }
                 case "6" -> customSearch(scanner);
                 case "0" -> running = false;
@@ -358,6 +358,19 @@ public class FinancialTracker {
             printTransaction(transaction);
         }
     }
+    public static void previousYear() {
+        LocalDate today = LocalDate.now();
+        LocalDate firstOfLastYear = today.minusYears(1).withDayOfYear(1);
+        LocalDate lastOfLastYear = firstOfLastYear.withDayOfYear(firstOfLastYear.lengthOfYear());
+
+        printLedgerHeader();
+        for (Transaction transaction : transactions) {
+            if (transaction.getDate().isBefore(firstOfLastYear)) continue;
+            if (transaction.getDate().isAfter(lastOfLastYear)) continue;
+            printTransaction(transaction);
+        }
+    }
+
 
     /* ------------------------------------------------------------------
        Reporting helpers
