@@ -256,17 +256,27 @@ public class FinancialTracker {
        ------------------------------------------------------------------ */
     private static void displayLedger() { /* TODO – print all transactions in column format */
         printLedgerHeader();
-        printTransaction("all");
+        for (Transaction transaction : transactions) {
+            printTransaction(transaction);
+        }
     }
 
     private static void displayDeposits() { /* TODO – only amount > 0               */
         printLedgerHeader();
-        printTransaction("deposits");
+        for (Transaction deposit : transactions) {
+            if (deposit.getAmount() > 0){
+                printTransaction(deposit);
+            }
+        }
     }
 
     private static void displayPayments() { /* TODO – only amount < 0               */
         printLedgerHeader();
-        printTransaction("payments");
+        for (Transaction payment : transactions) {
+            if (payment.getAmount() < 0){
+                printTransaction(payment);
+            }
+        }
     }
 
     private static void printLedgerHeader () {
@@ -274,16 +284,8 @@ public class FinancialTracker {
         System.out.println("-".repeat(75)); // creates line of dashes
     }
 
-    private static void printTransaction(String filter) {
-        for (Transaction transaction : transactions) { // Transaction = type | transaction = new variable created | transactions = array list
-            /*if the filter matches AND the amount condition is true -> skip (continue)
-            if the filter does not match → ignore this line entirely
-            if the filter matches AND the amount condition is false -> fall through to print*/
-            if (filter.equals("deposits") && transaction.getAmount() < 0) continue;
-            if (filter.equals("payments") && transaction.getAmount() > 0) continue;
-
-
-            System.out.printf("%-12s %-10s %-20s %-20s %.2f%n", // assigns and holds x amount of spaces from the left
+    private static void printTransaction(Transaction transaction) {
+            System.out.printf("%-12s %-10s %-20s %-20s %.2f%n", // assigns and holds x amount of spaces starting from the left
                     transaction.getDate().format(DATE_FMT),
                     transaction.getTime().format(TIME_FMT),
                     transaction.getDescription().length() > 20 // CONDDITION if description is longer than 20 characters
@@ -292,7 +294,7 @@ public class FinancialTracker {
                     transaction.getVendor(),
                     transaction.getAmount());
         }
-    }
+
 
     /* ------------------------------------------------------------------
        Reports menu
@@ -313,7 +315,7 @@ public class FinancialTracker {
             String input = scanner.nextLine().trim();
 
             switch (input) {
-                case "1" -> {/* TODO – month-to-date report */ }
+                case "1" -> {monthToDate();}
                 case "2" -> {/* TODO – previous month report */ }
                 case "3" -> {/* TODO – year-to-date report   */ }
                 case "4" -> {/* TODO – previous year report  */ }
@@ -321,6 +323,16 @@ public class FinancialTracker {
                 case "6" -> customSearch(scanner);
                 case "0" -> running = false;
                 default -> System.out.println("Invalid option");
+            }
+        }
+    }
+    public static void monthToDate() {
+        LocalDate today = LocalDate.now();
+        LocalDate startOfMonth = today.withDayOfMonth(1); // takes today and creates new date with same year and month but the day is set to 1
+        printLedgerHeader();
+        for (Transaction transaction : transactions) {
+            if (!transaction.getDate().isBefore(startOfMonth) && !transaction.getDate().isAfter(today)) { // if date is not before start of month or after today
+                printTransaction(transaction);
             }
         }
     }
