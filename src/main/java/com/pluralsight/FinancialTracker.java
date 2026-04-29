@@ -86,6 +86,8 @@ public class FinancialTracker {
             while ((line = br.readLine()) != null) {    // while line isnt null keep reading
                 String[] tokens = line.split("\\|"); // split line each time it reads '|'
 
+                if (tokens.length != 5) continue; // if line inside file has less or more than 5 tokens skip it
+
                 LocalDate date = LocalDate.parse(tokens[0], DATE_FMT);
                 LocalTime time = LocalTime.parse(tokens[1], TIME_FMT);
                 String description = tokens[2];
@@ -118,7 +120,7 @@ public class FinancialTracker {
         // TODO
         // date + time user input and parse
         try {
-            System.out.print("Enter date and time (yyyy-MM-dd HH:mm:ss: ");
+            System.out.print("Enter date and time (yyyy-MM-dd HH:mm:ss): ");
             String dateTimeInput = scanner.nextLine().trim();
 
             LocalDateTime dateTime = LocalDateTime.parse(dateTimeInput, DATETIME_FMT);
@@ -183,7 +185,7 @@ public class FinancialTracker {
     private static void addPayment(Scanner scanner) {
         // TODO
         try {
-            System.out.print("Enter date and time (yyyy-MM-dd HH:mm:ss: ");
+            System.out.print("Enter date and time (yyyy-MM-dd HH:mm:ss): ");
             String dateTimeInput = scanner.nextLine().trim();
 
             LocalDateTime dateTime = LocalDateTime.parse(dateTimeInput, DATETIME_FMT);
@@ -330,12 +332,11 @@ public class FinancialTracker {
     public static void monthToDate() {
         LocalDate today = LocalDate.now();
         LocalDate startOfMonth = today.withDayOfMonth(1); // takes today and creates new date with same year and month but the day is set to 1
+
+        System.out.println("MONTH TO DATE");
         printLedgerHeader();
-        for (Transaction transaction : transactions) {
-            if (transaction.getDate().isBefore(startOfMonth)) continue;
-            if (transaction.getDate().isAfter(today)) continue;
-            printTransaction(transaction);
-        }
+
+        filterTransactionsByDate(startOfMonth, today);
     }
     public static void previousMonth() {
         LocalDate today = LocalDate.now();
@@ -343,21 +344,16 @@ public class FinancialTracker {
         LocalDate lastOfLastMonth = firstOfLastMonth.withDayOfMonth(firstOfLastMonth.lengthOfMonth());
 
         printLedgerHeader();
-        for (Transaction transaction : transactions) {
-            if (transaction.getDate().isBefore(firstOfLastMonth)) continue;
-            if(transaction.getDate().isAfter(lastOfLastMonth)) continue;
-            printTransaction(transaction);
-        }
+
+        filterTransactionsByDate(firstOfLastMonth, lastOfLastMonth);
     }
     public static void yearToDate() {
         LocalDate today = LocalDate.now();
         LocalDate startOfYear = today.withDayOfYear(1);
+
         printLedgerHeader();
-        for (Transaction transaction : transactions) {
-            if (transaction.getDate().isBefore(startOfYear)) continue;
-            if (transaction.getDate().isAfter(today)) continue;
-            printTransaction(transaction);
-        }
+
+        filterTransactionsByDate(startOfYear, today);
     }
     public static void previousYear() {
         LocalDate today = LocalDate.now();
@@ -365,34 +361,39 @@ public class FinancialTracker {
         LocalDate lastOfLastYear = firstOfLastYear.withDayOfYear(firstOfLastYear.lengthOfYear());
 
         printLedgerHeader();
-        for (Transaction transaction : transactions) {
-            if (transaction.getDate().isBefore(firstOfLastYear)) continue;
-            if (transaction.getDate().isAfter(lastOfLastYear)) continue;
-            printTransaction(transaction);
-        }
+
+        filterTransactionsByDate(firstOfLastYear, lastOfLastYear);
     }
     private static void searchByVendor(Scanner scanner) {
         System.out.print("Search vendor name: ");
-        String vendorName = scanner.nextLine();
+        String vendorName = scanner.nextLine().trim();
 
         printLedgerHeader();
-        boolean found = false;
-        for (Transaction transaction : transactions) {
-            if (!vendorName.trim().equalsIgnoreCase(transaction.getVendor())) continue; // if vendor name does not match any vendor in database it jumps to top and grabs the next transaction
-            printTransaction(transaction); // prints transaction if the above condition is false
-            found = true; // sets found to true so the (!found) if statement does not print
-        }
-        if (!found) System.out.println("No transactions for for vendor"); // if flase will not print
+
+        filterTransactionsByVendor(vendorName);
     }
     /* ------------------------------------------------------------------
        Reporting helpers
        ------------------------------------------------------------------ */
     private static void filterTransactionsByDate(LocalDate start, LocalDate end) {
-        // TODO – iterate transactions, print those within the range
+        boolean found = false;
+        for (Transaction transaction : transactions) {
+            if (transaction.getDate().isBefore(start)) continue;
+            if (transaction.getDate().isAfter(end)) continue;
+            printTransaction(transaction);
+            found = true;
+        }
+        if (!found) System.out.println("No transactions found for that period.");
     }
 
-    private static void filterTransactionsByVendor(String vendor) {
-        // TODO – iterate transactions, print those with matching vendor
+    private static void filterTransactionsByVendor(String vendorName) {
+        boolean found = false;
+        for (Transaction transaction : transactions) {
+            if (!vendorName.equalsIgnoreCase(transaction.getVendor())) continue; // if vendor name does not match any vendor in database it jumps to top and grabs the next transaction
+            printTransaction(transaction); // prints transaction if the above condition is false
+            found = true; // sets found to true so the (!found) if statement does not print
+        }
+        if (!found) System.out.println("No transactions found for " + vendorName); // if false will not print
     }
 
     private static void customSearch(Scanner scanner) {
