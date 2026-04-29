@@ -329,7 +329,7 @@ public class FinancialTracker {
             }
         }
     }
-    public static void monthToDate() {
+    private static void monthToDate() {
         // get start and end date info
         LocalDate today = LocalDate.now();
         LocalDate startOfMonth = today.withDayOfMonth(1); // takes today and creates new date with same year and month but the day is set to 1
@@ -340,7 +340,7 @@ public class FinancialTracker {
 
         filterTransactionsByDate(startOfMonth, today); // method takes the start and end date and handles the filtering logic
     }
-    public static void previousMonth() {
+    private static void previousMonth() {
         // get start and end date info
         LocalDate today = LocalDate.now();
         LocalDate firstOfLastMonth = today.minusMonths(1).withDayOfMonth(1);
@@ -352,7 +352,7 @@ public class FinancialTracker {
 
         filterTransactionsByDate(firstOfLastMonth, lastOfLastMonth); // method takes the start and end date and handles the filtering logic
     }
-    public static void yearToDate() {
+    private static void yearToDate() {
         // get start and end date info
         LocalDate today = LocalDate.now();
         LocalDate startOfYear = today.withDayOfYear(1);
@@ -363,7 +363,7 @@ public class FinancialTracker {
 
         filterTransactionsByDate(startOfYear, today); // method takes the start and end date and handles the filtering logic
     }
-    public static void previousYear() {
+    private static void previousYear() {
         // get start and end date info
         LocalDate today = LocalDate.now();
         LocalDate firstOfLastYear = today.minusYears(1).withDayOfYear(1);
@@ -410,17 +410,11 @@ public class FinancialTracker {
     }
 
     private static void customSearch(Scanner scanner) {
-        // TODO – prompt for any combination of date range, description,
-        //        vendor, and exact amount, then display matches
         System.out.println("Custom Search. Press 'ENTER' to leave blank");
 
-        System.out.print("Start date (yyyy-MM-dd): ");
-        String startInput = scanner.nextLine().trim();
-        LocalDate start = parseDate(startInput);
+        LocalDate start = parseDate("Start date (yyyy-MM-dd): ", scanner);
 
-        System.out.print("End date (yyyy-MM-dd): ");
-        String endInput = scanner.nextLine().trim();
-        LocalDate end = parseDate(endInput);
+        LocalDate end = parseDate("End date (yyyy-MM-dd): ", scanner);
 
         System.out.print("Description: ");
         String description = scanner.nextLine().trim();
@@ -428,9 +422,8 @@ public class FinancialTracker {
         System.out.print("Vendor name: ");
         String vendorName = scanner.nextLine().trim();
 
-        System.out.print("Amount: ");
-        String amountInput = scanner.nextLine().trim();
-        Double amount = parseDouble(amountInput);
+
+        Double amount = parseDouble("Amount: ", scanner);
 
         printLedgerHeader();
         boolean found = false;
@@ -449,21 +442,34 @@ public class FinancialTracker {
     /* ------------------------------------------------------------------
        Utility parsers (you can reuse in many places)
        ------------------------------------------------------------------ */
-    private static LocalDate parseDate(String s) {
-        if (s.isBlank()) return null;
-        try {
-            return LocalDate.parse(s, DATE_FMT);
-        } catch (Exception e) {
-            return null;
+   private static LocalDate parseDate(String prompt, Scanner scanner) {
+
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
+
+            if (input.isBlank()) return null;
+
+            try {
+                return LocalDate.parse(input, DATE_FMT);
+            } catch (Exception e) {
+                System.out.println("Invalid date format. Please use yyyy-MM-dd or press Enter to skip.");
+            }
         }
     }
 
-    private static Double parseDouble(String s) {
-        if (s.isBlank()) return null;
-        try {
-            return Double.parseDouble(s);
-        } catch (Exception e) {
-            return null;
-        }
+    private static Double parseDouble(String prompt, Scanner scanner) {
+
+       while (true) {
+           System.out.print(prompt);
+           String input = scanner.nextLine().trim();
+
+           if (input.isBlank()) return null;
+           try {
+               return Double.parseDouble(input);
+           } catch (Exception e) {
+               System.out.println("Invalid amount. Please enter a number or press Enter to skip.");
+           }
+       }
     }
 }
