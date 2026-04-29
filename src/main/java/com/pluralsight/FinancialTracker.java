@@ -330,47 +330,60 @@ public class FinancialTracker {
         }
     }
     public static void monthToDate() {
+        // get start and end date info
         LocalDate today = LocalDate.now();
         LocalDate startOfMonth = today.withDayOfMonth(1); // takes today and creates new date with same year and month but the day is set to 1
 
+        // print header
         System.out.println("MONTH TO DATE");
         printLedgerHeader();
 
-        filterTransactionsByDate(startOfMonth, today);
+        filterTransactionsByDate(startOfMonth, today); // method takes the start and end date and handles the filtering logic
     }
     public static void previousMonth() {
+        // get start and end date info
         LocalDate today = LocalDate.now();
         LocalDate firstOfLastMonth = today.minusMonths(1).withDayOfMonth(1);
-        LocalDate lastOfLastMonth = firstOfLastMonth.withDayOfMonth(firstOfLastMonth.lengthOfMonth());
+        LocalDate lastOfLastMonth = firstOfLastMonth.withDayOfMonth(firstOfLastMonth.lengthOfMonth()); // withDateOfMonth takes the last day of the month
 
+        // print header
+        System.out.println("PREVIOUS MONTH");
         printLedgerHeader();
 
-        filterTransactionsByDate(firstOfLastMonth, lastOfLastMonth);
+        filterTransactionsByDate(firstOfLastMonth, lastOfLastMonth); // method takes the start and end date and handles the filtering logic
     }
     public static void yearToDate() {
+        // get start and end date info
         LocalDate today = LocalDate.now();
         LocalDate startOfYear = today.withDayOfYear(1);
 
+        // print header
+        System.out.println("YEAR TO DATE");
         printLedgerHeader();
 
-        filterTransactionsByDate(startOfYear, today);
+        filterTransactionsByDate(startOfYear, today); // method takes the start and end date and handles the filtering logic
     }
     public static void previousYear() {
+        // get start and end date info
         LocalDate today = LocalDate.now();
         LocalDate firstOfLastYear = today.minusYears(1).withDayOfYear(1);
         LocalDate lastOfLastYear = firstOfLastYear.withDayOfYear(firstOfLastYear.lengthOfYear());
 
+        // print header
+        System.out.println("PREVIOUS YEAR");
         printLedgerHeader();
 
-        filterTransactionsByDate(firstOfLastYear, lastOfLastYear);
+        filterTransactionsByDate(firstOfLastYear, lastOfLastYear); // method takes the start and end date and handles the filtering logic
     }
     private static void searchByVendor(Scanner scanner) {
         System.out.print("Search vendor name: ");
-        String vendorName = scanner.nextLine().trim();
+        String vendorName = scanner.nextLine().trim(); // saves user input as a string
 
+        // print header
+        System.out.println("VENDOR SEARCH");
         printLedgerHeader();
 
-        filterTransactionsByVendor(vendorName);
+        filterTransactionsByVendor(vendorName); // method takes the string and handles filtering logic
     }
     /* ------------------------------------------------------------------
        Reporting helpers
@@ -400,25 +413,57 @@ public class FinancialTracker {
         // TODO – prompt for any combination of date range, description,
         //        vendor, and exact amount, then display matches
         System.out.println("Custom Search. Press 'ENTER' to leave blank");
-        System.out.print("Start date (yyyy-MM-dd)");
+
+        System.out.print("Start date (yyyy-MM-dd): ");
         String startInput = scanner.nextLine().trim();
-        LocalDate start = LocalDate.parse(startInput, DATE_FMT);
-        System.out.print("End date (yyyy-MM-dd");
-        System.out.print("Description");
-        System.out.print("Vendor name");
-        System.out.print("Amount");
+        LocalDate start = parseDate(startInput);
+
+        System.out.print("End date (yyyy-MM-dd): ");
+        String endInput = scanner.nextLine().trim();
+        LocalDate end = parseDate(endInput);
+
+        System.out.print("Description: ");
+        String description = scanner.nextLine().trim();
+
+        System.out.print("Vendor name: ");
+        String vendorName = scanner.nextLine().trim();
+
+        System.out.print("Amount: ");
+        String amountInput = scanner.nextLine().trim();
+        Double amount = parseDouble(amountInput);
+
+        printLedgerHeader();
+        boolean found = false;
+        for (Transaction transaction : transactions) {
+            if (start != null && transaction.getDate().isBefore(start)) continue;
+            if (end != null && transaction.getDate().isAfter(end)) continue;
+            if (!description.isBlank() && !transaction.getDescription().equalsIgnoreCase(description)) continue;
+            if (!vendorName.isBlank() && !transaction.getVendor().equalsIgnoreCase(vendorName)) continue;
+            if (amount != null && transaction.getAmount() != amount) continue;
+            printTransaction(transaction);
+            found = true;
+        }
+        if (!found) System.out.println("No transactions found matching your search");
     }
 
     /* ------------------------------------------------------------------
        Utility parsers (you can reuse in many places)
        ------------------------------------------------------------------ */
     private static LocalDate parseDate(String s) {
-        /* TODO – return LocalDate or null */
-        return null;
+        if (s.isBlank()) return null;
+        try {
+            return LocalDate.parse(s, DATE_FMT);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private static Double parseDouble(String s) {
-        /* TODO – return Double   or null */
-        return null;
+        if (s.isBlank()) return null;
+        try {
+            return Double.parseDouble(s);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
