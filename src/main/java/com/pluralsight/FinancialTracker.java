@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Scanner;
 
 /*
@@ -72,9 +73,6 @@ public class FinancialTracker {
      * • Each line looks like: date|time|description|vendor|amount
      */
     public static void loadTransactions(String fileName) {
-        // TODO: create file if it does not exist, then read each line,
-        //       parse the five fields, build a Transaction object,
-        //       and add it to the transactions list.
         try {
             File file = new File(fileName); // stores file inside new File object
 
@@ -152,7 +150,7 @@ public class FinancialTracker {
             saveTransaction(transaction); // saves changes to the file
 
             System.out.println("Deposit added successfully.");
-        } catch (NumberFormatException e) {
+        } catch (Exception e) {
             System.out.println("Invalid input. Deposit not added.");
         }
     }
@@ -219,7 +217,7 @@ public class FinancialTracker {
             saveTransaction(transaction); // saves changes to the file
 
             System.out.println("Payment added successfully.");
-        } catch (NumberFormatException e) {
+        } catch (Exception e) {
             System.out.println("Invalid input. Payment not added.");
         }
     }
@@ -228,6 +226,9 @@ public class FinancialTracker {
        Ledger menu
        ------------------------------------------------------------------ */
     private static void ledgerMenu(Scanner scanner) {
+
+        transactions.sort(Comparator.comparing(Transaction::getDate));
+
         boolean running = true;
         while (running) {
             System.out.println("Ledger");
@@ -331,9 +332,9 @@ public class FinancialTracker {
         LocalDate startOfMonth = today.withDayOfMonth(1); // takes today and creates new date with same year and month but the day is set to 1
         printLedgerHeader();
         for (Transaction transaction : transactions) {
-            if (!transaction.getDate().isBefore(startOfMonth) && !transaction.getDate().isAfter(today)) { // if date is not before start of month or after today
-                printTransaction(transaction);
-            }
+            if (transaction.getDate().isBefore(startOfMonth)) continue;
+            if (transaction.getDate().isAfter(today)) continue;
+            printTransaction(transaction);
         }
     }
     public static void previousMonth() {
@@ -370,15 +371,18 @@ public class FinancialTracker {
             printTransaction(transaction);
         }
     }
-
     private static void searchByVendor(Scanner scanner) {
         System.out.print("Search vendor name: ");
         String vendorName = scanner.nextLine();
 
+        printLedgerHeader();
+        boolean found = false;
         for (Transaction transaction : transactions) {
-            if (!vendorName.trim().equalsIgnoreCase(transaction.getVendor())) continue;
-            printTransaction(transaction);
+            if (!vendorName.trim().equalsIgnoreCase(transaction.getVendor())) continue; // if vendor name does not match any vendor in database it jumps to top and grabs the next transaction
+            printTransaction(transaction); // prints transaction if the above condition is false
+            found = true; // sets found to true so the (!found) if statement does not print
         }
+        if (!found) System.out.println("No transactions for for vendor"); // if flase will not print
     }
     /* ------------------------------------------------------------------
        Reporting helpers
@@ -394,6 +398,14 @@ public class FinancialTracker {
     private static void customSearch(Scanner scanner) {
         // TODO – prompt for any combination of date range, description,
         //        vendor, and exact amount, then display matches
+        System.out.println("Custom Search. Press 'ENTER' to leave blank");
+        System.out.print("Start date (yyyy-MM-dd)");
+        String startInput = scanner.nextLine().trim();
+        LocalDate start = LocalDate.parse(startInput, DATE_FMT);
+        System.out.print("End date (yyyy-MM-dd");
+        System.out.print("Description");
+        System.out.print("Vendor name");
+        System.out.print("Amount");
     }
 
     /* ------------------------------------------------------------------
