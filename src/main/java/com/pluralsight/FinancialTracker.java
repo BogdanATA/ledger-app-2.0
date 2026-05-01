@@ -67,9 +67,7 @@ public class FinancialTracker {
        File I/O
        ------------------------------------------------------------------ */
     /**
-     * Load transactions from FILE_NAME.
-     * If the file doesn’t exist, create an empty one so that future writes succeed.
-     * Each line looks like: date|time|description|vendor|amount
+     * Loads transactions from file and adds them to array list.
      *
      * @param fileName FILE_NAME is passed down into this parameter
      */
@@ -109,10 +107,7 @@ public class FinancialTracker {
        Add new transactions
        ------------------------------------------------------------------ */
     /**
-     * Prompt for ONE date+time string in the format
-     * "yyyy-MM-dd HH:mm:ss", plus description, vendor, amount.
-     * Validate that the amount entered is positive.
-     * Store the amount as-is (positive) and append to the file.
+     * Adds deposit and saves it to the file.
      *
      * @param scanner used to read user input
      */
@@ -157,9 +152,7 @@ public class FinancialTracker {
     }
 
     /**
-     * Prompts user for payment details
-     * Amount entered is positive then converts it to negative
-     * Creates a transaction and saves it
+     * Adds payment and saves it to the file.
      *
      * @param scanner used to read user input
      */
@@ -220,7 +213,7 @@ public class FinancialTracker {
                     "|" + transaction.getTime().format(TIME_FMT) +
                     "|" + transaction.getDescription() +
                     "|" + transaction.getVendor() +
-                    "|" + transaction.getAmount());
+                    "|" + String.format("%.2f", transaction.getAmount()));
 
             bw.newLine();
             bw.close();
@@ -234,8 +227,7 @@ public class FinancialTracker {
        Ledger menu
        ------------------------------------------------------------------ */
     /**
-     * Displays the ledger menu
-     * Handles user navigation
+     * Displays the ledger menu and lets the user navigate it.
      *
      * @param scanner Used to read user navigation commands
      * */
@@ -270,7 +262,7 @@ public class FinancialTracker {
        Display helpers: show data in neat columns
        ------------------------------------------------------------------ */
     /**
-     * Display all transactions from the array list
+     * Display all transactions from the array list.
      * */
     private static void displayLedger() {
         printLedgerHeader();
@@ -280,9 +272,9 @@ public class FinancialTracker {
     }
 
     /**
-     * Display only the transactions with positive amounts
+     * Display only the transactions with positive amounts.
      * */
-    private static void displayDeposits() { /* TODO – only amount > 0               */
+    private static void displayDeposits() {
         printLedgerHeader();
         for (Transaction deposit : transactions) {
             if (deposit.getAmount() > 0){
@@ -292,9 +284,9 @@ public class FinancialTracker {
     }
 
     /**
-     * Display only the transactions with negative amounts
+     * Display only the transactions with negative amounts.
      * */
-    private static void displayPayments() { /* TODO – only amount < 0               */
+    private static void displayPayments() {
         printLedgerHeader();
         for (Transaction payment : transactions) {
             if (payment.getAmount() < 0){
@@ -304,7 +296,7 @@ public class FinancialTracker {
     }
 
     /**
-     * Prints formatted header for the ledger categories
+     * Prints formatted header for the ledger categories.
      * */
     private static void printLedgerHeader () {
         System.out.printf("%-12s %-10s %-20s %-20s %s%n", "Date", "Time", "Description", "Vendor", "Amount");
@@ -312,27 +304,25 @@ public class FinancialTracker {
     }
 
     /**
-     * Prints 1 transaction in formatted column
+     * Prints 1 transaction in a formatted column.
      *
      * @param transaction takes the transaction that needs to be printed
      * */
     private static void printTransaction(Transaction transaction) {
-            System.out.printf("%-12s %-10s %-20s %-20s %.2f%n", // assigns and holds x amount of spaces starting from the left
-                    transaction.getDate().format(DATE_FMT),
-                    transaction.getTime().format(TIME_FMT),
-                    transaction.getDescription().length() > 20 // CONDDITION if description is longer than 20 characters
-                            ? transaction.getDescription().substring(0, 17) + "..." // IF TRUE takes characters from 0 to 16 and adds ... at the end so total characters is still 20
-                            : transaction.getDescription(), // if less than 20 characters long just prints it normally
-                    transaction.getVendor(),
-                    transaction.getAmount());
+        System.out.printf("%-12s %-10s %-20s %-20s %.2f%n", // assigns and holds x amount of spaces starting from the left
+                transaction.getDate().format(DATE_FMT),
+                transaction.getTime().format(TIME_FMT),
+                transaction.getDescription().length() > 20 // CONDDITION if description is longer than 20 characters
+                        ? transaction.getDescription().substring(0, 17) + "..." // IF TRUE takes characters from 0 to 16 and adds ... at the end so total characters is still 20
+                        : transaction.getDescription(), // if less than 20 characters long just prints it normally
+                transaction.getVendor(),
+                transaction.getAmount());
         }
-
     /* ------------------------------------------------------------------
        Reports menu
        ------------------------------------------------------------------ */
     /**
-     * Displays the reports menu
-     * Handles user navigation
+     * Displays the reports menu and lets the user navigate it.
      *
      * @param scanner Used to read user navigation commands
      * */
@@ -365,7 +355,7 @@ public class FinancialTracker {
     }
 
     /**
-     * Displays transactions from start of current month up to the current date
+     * Displays transactions from start of current month up to the current date.
      * */
     private static void monthToDate() {
         // get start and end date info
@@ -380,7 +370,7 @@ public class FinancialTracker {
     }
 
     /**
-     * Displays transactions from the previous month
+     * Displays transactions from the previous month.
      * */
     private static void previousMonth() {
         // get start and end date info
@@ -396,7 +386,7 @@ public class FinancialTracker {
     }
 
     /**
-     * Displays transactions from the start of current year up to the current date
+     * Displays transactions from the start of current year up to the current date.
      * */
     private static void yearToDate() {
         // get start and end date info
@@ -411,7 +401,7 @@ public class FinancialTracker {
     }
 
     /**
-     * Displays transactions from the previous year
+     * Displays transactions from the previous year.
      * */
     private static void previousYear() {
         // get start and end date info
@@ -427,8 +417,7 @@ public class FinancialTracker {
     }
 
     /**
-     * Prompts user for vendor name
-     * Displays matching transactions
+     * Gets vendor name from user and prints ledger header
      *
      * @param scanner Used to read name of vendor the user wants to search for
      * */
@@ -447,7 +436,6 @@ public class FinancialTracker {
        ------------------------------------------------------------------ */
     /**
      * Prints transactions between the given dates
-     * Tells user if no transactions were found between the given dates
      *
      * @param start the start date
      * @param end the end date
@@ -479,8 +467,9 @@ public class FinancialTracker {
     }
 
     /**
-     * Allows user to filter transactions by date, description, vendor and amount
-     * Tells user if no transactions matching the criteria were found
+     * Prints filtered transactions
+     *
+     * @param scanner Used to read user input
      * */
     private static void customSearch(Scanner scanner) {
         System.out.println("Custom Search. Press 'ENTER' to leave blank");

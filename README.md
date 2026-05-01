@@ -3,6 +3,10 @@
 ## Description of the Project
 
 Briefly describe what this Java console application does. Mention its purpose and who the intended users are. Explain the main functionality and what problems it aims to solve.
+This application is a personal finance tracker that allows users to record and track their financial transactions. This application is intended for users who want 
+to keep track of their finances and be able to find specific transactions that they are looking for. Users can add deposits and payments which get added into a file
+that saves all the data. The application provides a way for users filter their transactions by date, description, vendor and amount. The application helps user get 
+better visibility of their spending and income.
 
 ## User Stories
 
@@ -25,6 +29,7 @@ List the user stories that guided the development of your application. Format th
 - As a user, I want to view year-to-date transactions, so that I can review activity from the current year.
 - As a user, I want to view previous year transactions, so that I can review last year’s financial activity.
 - As a user, I want to search transactions by vendor, so that I can find all transactions related to a specific person or company.
+- As a user, I want to have a custom search option so I can find transactions fufilling multiple criteria
 
 ## Setup
 
@@ -47,8 +52,7 @@ Follow these steps to get your application running within IntelliJ IDEA:
 
 ## Technologies Used
 
-- Java: Mention the version you are using.
-- Any additional libraries or frameworks used in the project.
+- Java: JDK 17
 
 ## Demo
 
@@ -58,27 +62,21 @@ Include screenshots or GIFs that show your application in action. Use tools like
 
 ## Future Work
 
-Outline potential future enhancements or functionalities you might consider adding:
-
-- Additional feature to be developed.
-- Improvement of current functionalities.
+- Make it so when user enters a description it could be partial but still find a match
 
 ## Resources
 
-List resources such as tutorials, articles, or documentation that helped you during the project.
-
-- [Java Programming Tutorial](https://www.example.com)
-- [Effective Java](https://www.example.com)
+- [Java Visual Learning Hub](https://raymaroun.github.io/yearup-java-visuals/index.html)
+- [RayMaroun solution Repos](https://github.com/RayMaroun/yearup-spring-section-8-2026)
+- [w3schools](https://www.w3schools.com/java/)
+- [Java Time Package](https://docs.oracle.com/javase/8/docs/api/java/time/package-summary.html)
 
 ## Team Members
 
-- **Name 1** - Specific contributions or roles.
-- **Name 2** - Specific contributions or roles.
+- **Bogdan Atamyeyev** - Lead developer.
 
 ## Thanks
 
-Express gratitude towards those who provided help, guidance, or resources:
-
-- Thank you to [Mentor's Name] for continuous support and guidance.
+- Thank you to [Raymond Maroun] for continuous support and guidance.
 - A special thanks to all teammates for their dedication and teamwork.
  
