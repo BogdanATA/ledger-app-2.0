@@ -454,11 +454,11 @@ public class FinancialTracker {
     private static void filterTransactionsByVendor(String vendorName) {
         boolean found = false;
         for (Transaction transaction : transactions) {
-            if (!vendorName.equalsIgnoreCase(transaction.getVendor())) continue; // if vendor name does not match any vendor in database it jumps to top and grabs the next transaction
-            printTransaction(transaction); // prints transaction if the above condition is false
-            found = true; // sets found to true so the (!found) if statement does not print
+            if (!transaction.getVendor().toLowerCase().contains(vendorName.toLowerCase())) continue;
+            printTransaction(transaction);
+            found = true;
         }
-        if (!found) System.out.println("No transactions found for " + vendorName); // if false will not print
+        if (!found) System.out.println("No transactions found for " + vendorName);
     }
 
     /**
