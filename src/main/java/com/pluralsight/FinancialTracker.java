@@ -78,7 +78,7 @@ public class FinancialTracker {
             while ((line = br.readLine()) != null) {    // while line isnt null keep reading
                 String[] tokens = line.split("\\|"); // split line each time it reads '|'
 
-                if (tokens.length != 5) continue; // if line inside file doesnt have exactly 5 tokens skip it
+                if (tokens.length != 6) continue; // if line inside file doesnt have exactly 5 tokens skip it
 
                 try {
                     LocalDate date = LocalDate.parse(tokens[0], DATE_FMT);
@@ -86,9 +86,10 @@ public class FinancialTracker {
                     String description = tokens[2];
                     String vendor = tokens[3];
                     double amount = Double.parseDouble(tokens[4]);
+                    Category category = Category.valueOf(tokens[5]);
 
                     // creates transaction object using parsed data from file
-                    Transaction transaction = new Transaction(date, time, description, vendor, amount);
+                    Transaction transaction = new Transaction(date, time, description, vendor, amount, category);
 
                     transactions.add(transaction); // adds new transaction object into the transactions array list
                 } catch (Exception e) {
@@ -135,8 +136,18 @@ public class FinancialTracker {
                 System.out.println("Deposit amount must be positive.");
                 return;
             }
+
+            System.out.println("1. Food");
+            System.out.println("2. Gas");
+            System.out.println("3. Entertainment");
+            System.out.println("4. Other");
+            int categoryChoice = scanner.nextInt();
+            scanner.nextLine();
+
+            Category category = Category.values()[categoryChoice - 1];
+
             // creates transaction object using parsed data from file
-            Transaction transaction = new Transaction(date, time, description, vendor, amount);
+            Transaction transaction = new Transaction(date, time, description, vendor, amount, category);
 
             transactions.add(transaction); // adds new transaction object into the transactions array list
 
@@ -181,8 +192,18 @@ public class FinancialTracker {
             }
             //negate the payment entered
             double negatedAmount = amount * -1;
+
+            System.out.println("1. Food");
+            System.out.println("2. Gas");
+            System.out.println("3. Entertainment");
+            System.out.println("4. Other");
+            int categoryChoice = scanner.nextInt();
+            scanner.nextLine();
+
+            Category category = Category.values()[categoryChoice - 1];
+
             // creates transaction object using parsed data from file
-            Transaction transaction = new Transaction(date, time, description, vendor, negatedAmount);
+            Transaction transaction = new Transaction(date, time, description, vendor, negatedAmount, category);
 
             transactions.add(transaction); // adds new transaction object into the transactions array list
 
@@ -209,7 +230,8 @@ public class FinancialTracker {
                     "|" + transaction.getTime().format(TIME_FMT) +
                     "|" + transaction.getDescription() +
                     "|" + transaction.getVendor() +
-                    "|" + String.format("%.2f", transaction.getAmount()));
+                    "|" + String.format("%.2f", transaction.getAmount()) +
+                    "|" + transaction.getCategory());
 
             bw.newLine();
             bw.close();
@@ -296,7 +318,7 @@ public class FinancialTracker {
      * Prints formatted header for the ledger categories.
      * */
     private static void printLedgerHeader () {
-        System.out.printf("%-12s %-10s %-35s %-20s %s%n", "Date", "Time", "Description", "Vendor", "Amount in $");
+        System.out.printf("%-12s %-10s %-35s %-20s %-12s %s%n", "Date", "Time", "Description", "Vendor", "Category", "Amount in $");
         System.out.println("-".repeat(95)); // creates line of dashes
     }
 
@@ -306,11 +328,12 @@ public class FinancialTracker {
      * @param transaction takes the transaction that needs to be printed
      * */
     private static void printTransaction(Transaction transaction) {
-        System.out.printf("%-12s %-10s %-35s %-20s %.2f%n", // assigns and holds x amount of spaces starting from the left
+        System.out.printf("%-12s %-10s %-35s %-20s %-12s %.2f%n", // assigns and holds x amount of spaces starting from the left
                 transaction.getDate().format(DATE_FMT),
                 transaction.getTime().format(TIME_FMT),
                 transaction.getDescription(),
                 transaction.getVendor(),
+                transaction.getCategory(),
                 transaction.getAmount());
         }
     /* ------------------------------------------------------------------

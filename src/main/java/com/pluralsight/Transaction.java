@@ -9,13 +9,15 @@ public class Transaction {
     private String description;
     private String vendor;
     private double amount;
+    private Category category;
 
-    public Transaction(LocalDate date, LocalTime time, String description, String vendor, double amount) {
+    public Transaction(LocalDate date, LocalTime time, String description, String vendor, double amount, Category category) {
         this.date = date;
         this.time = time;
         this.description = description;
         this.vendor = vendor;
         this.amount = amount;
+        this.category = category;
     }
 
     public LocalDate getDate() {
@@ -38,7 +40,10 @@ public class Transaction {
         return amount;
     }
 
-
-
-
+    public Category getCategory() {
+        return category;
+    }
+    public void setCategory(Category category) {
+        this.category = category;
+    }
 }
