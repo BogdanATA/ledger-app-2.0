@@ -137,14 +137,8 @@ public class FinancialTracker {
                 return;
             }
 
-            System.out.println("1. Food");
-            System.out.println("2. Gas");
-            System.out.println("3. Entertainment");
-            System.out.println("4. Other");
-            int categoryChoice = scanner.nextInt();
-            scanner.nextLine();
-
-            CategoryType category = CategoryType.values()[categoryChoice - 1];
+            // creates a new category for the helper method
+            CategoryType category = selectCategory(scanner);
 
             // creates transaction object using parsed data from file
             Transaction transaction = new Transaction(date, time, description, vendor, amount, category);
@@ -193,14 +187,8 @@ public class FinancialTracker {
             //negate the payment entered
             double negatedAmount = amount * -1;
 
-            System.out.println("1. Food");
-            System.out.println("2. Gas");
-            System.out.println("3. Entertainment");
-            System.out.println("4. Other");
-            int categoryChoice = scanner.nextInt();
-            scanner.nextLine();
-
-            CategoryType category = CategoryType.values()[categoryChoice - 1];
+            // creates a new category for the helper method
+            CategoryType category = selectCategory(scanner);
 
             // creates transaction object using parsed data from file
             Transaction transaction = new Transaction(date, time, description, vendor, negatedAmount, category);
@@ -566,4 +554,49 @@ public class FinancialTracker {
            }
        }
     }
+
+    /**
+     * prompts for a category type
+     *
+     * @param scanner Used to read the user given category type
+     * @return the CategoryType the user selected; keeps prompting until valid input is given
+     * */
+    // category type menu helper method
+    private static CategoryType selectCategory(Scanner scanner) {
+
+        CategoryType category = null;
+
+        boolean running = true;
+        while (running) {
+            System.out.println("1) Food");
+            System.out.println("2) Gas");
+            System.out.println("3) Entertainment");
+            System.out.println("4) Other");
+            System.out.print("Choose category: ");
+            int categoryChoice = scanner.nextInt();scanner.nextLine();
+
+            switch (categoryChoice) {
+
+                case 1 -> {
+                    category = CategoryType.FOOD;
+                    running = false;
+                }
+                case 2 -> {
+                    category = CategoryType.GAS;
+                    running = false;
+                }
+                case 3 -> {
+                    category = CategoryType.ENTERTAINMENT;
+                    running = false;
+                }
+                case 4 -> {
+                    category = CategoryType.OTHER;
+                    running = false;
+                }
+                default -> System.out.print("invalid option");
+            }
+        }
+        return category;
+    }
 }
+
