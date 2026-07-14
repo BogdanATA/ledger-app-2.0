@@ -9,9 +9,9 @@ public class Transaction {
     private String description;
     private String vendor;
     private double amount;
-    private Category category;
+    private CategoryType category;
 
-    public Transaction(LocalDate date, LocalTime time, String description, String vendor, double amount, Category category) {
+    public Transaction(LocalDate date, LocalTime time, String description, String vendor, double amount, CategoryType category) {
         this.date = date;
         this.time = time;
         this.description = description;
@@ -40,10 +40,10 @@ public class Transaction {
         return amount;
     }
 
-    public Category getCategory() {
+    public CategoryType getCategory() {
         return category;
     }
-    public void setCategory(Category category) {
+    public void setCategory(CategoryType category) {
         this.category = category;
     }
 }

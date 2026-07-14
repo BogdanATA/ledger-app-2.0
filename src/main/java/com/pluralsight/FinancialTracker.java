@@ -86,7 +86,7 @@ public class FinancialTracker {
                     String description = tokens[2];
                     String vendor = tokens[3];
                     double amount = Double.parseDouble(tokens[4]);
-                    Category category = Category.valueOf(tokens[5]);
+                    CategoryType category = CategoryType.valueOf(tokens[5]);
 
                     // creates transaction object using parsed data from file
                     Transaction transaction = new Transaction(date, time, description, vendor, amount, category);
@@ -144,7 +144,7 @@ public class FinancialTracker {
             int categoryChoice = scanner.nextInt();
             scanner.nextLine();
 
-            Category category = Category.values()[categoryChoice - 1];
+            CategoryType category = CategoryType.values()[categoryChoice - 1];
 
             // creates transaction object using parsed data from file
             Transaction transaction = new Transaction(date, time, description, vendor, amount, category);
@@ -200,7 +200,7 @@ public class FinancialTracker {
             int categoryChoice = scanner.nextInt();
             scanner.nextLine();
 
-            Category category = Category.values()[categoryChoice - 1];
+            CategoryType category = CategoryType.values()[categoryChoice - 1];
 
             // creates transaction object using parsed data from file
             Transaction transaction = new Transaction(date, time, description, vendor, negatedAmount, category);

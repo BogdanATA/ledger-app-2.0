@@ -1,6 +1,6 @@
 package com.pluralsight;
 
-public enum Category {
+public enum CategoryType {
     FOOD,
     GAS,
     ENTERTAINMENT,
