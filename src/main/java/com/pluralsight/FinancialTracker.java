@@ -36,12 +36,14 @@ public class FinancialTracker {
         boolean running = true;
 
         while (running) {
-            System.out.println("\nWelcome to TransactionApp");
+            System.out.println("\n💰 Welcome to TransactionApp 💰");
+            System.out.println("=================================");
             System.out.println("Choose an option:");
-            System.out.println("D) Add Deposit");
-            System.out.println("P) Make Payment (Debit)");
-            System.out.println("L) Ledger");
-            System.out.println("X) Exit");
+            System.out.println("💵  (D) Add Deposit");
+            System.out.println("💳  (P) Make Payment (Debit)");
+            System.out.println("📒  (L) Ledger");
+            System.out.println("🚪  (X) Exit");
+            System.out.println("=================================");
 
             String input = scanner.nextLine().trim();
 
