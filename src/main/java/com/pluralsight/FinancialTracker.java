@@ -264,7 +264,7 @@ public class FinancialTracker {
                 case "P" -> displayPayments();
                 case "R" -> reportsMenu(scanner);
                 case "H" -> running = false;
-                default -> System.out.println("Invalid option");
+                default -> System.out.println("⚠️ Invalid option");
             }
         }
     }
@@ -339,15 +339,17 @@ public class FinancialTracker {
     private static void reportsMenu(Scanner scanner) {
         boolean running = true;
         while (running) {
-            System.out.println("\nReports");
+            System.out.println("\n📊 Reports");
+            System.out.println("=================================");
             System.out.println("Choose an option:");
-            System.out.println("1) Month To Date");
-            System.out.println("2) Previous Month");
-            System.out.println("3) Year To Date");
-            System.out.println("4) Previous Year");
-            System.out.println("5) Search by Vendor");
-            System.out.println("6) Custom Search");
-            System.out.println("0) Back");
+            System.out.println("1) 📅 Month To Date");
+            System.out.println("2) 📆 Previous Month");
+            System.out.println("3) 🗓️  Year To Date");
+            System.out.println("4) 📉 Previous Year");
+            System.out.println("5) 🏪 Search by Vendor");
+            System.out.println("6) 🔎 Custom Search");
+            System.out.println("0) 🔙 Back");
+            System.out.println("=================================");
 
             String input = scanner.nextLine().trim();
 
@@ -482,16 +484,16 @@ public class FinancialTracker {
      * @param scanner Used to read user input
      * */
     private static void customSearch(Scanner scanner) {
-        System.out.println("Custom Search. Press 'ENTER' to leave blank");
+        System.out.println("🔍 Custom Search — press 'ENTER' to leave blank");
 
-        LocalDate start = parseDate("Start date (yyyy-MM-dd): ", scanner);
+        LocalDate start = parseDate("📅 Start date (yyyy-MM-dd): ", scanner);
 
-        LocalDate end = parseDate("End date (yyyy-MM-dd): ", scanner);
+        LocalDate end = parseDate("📅 End date (yyyy-MM-dd): ", scanner);
 
-        System.out.print("Description: ");
+        System.out.print("📝 Description: ");
         String description = scanner.nextLine().trim();
 
-        System.out.print("Vendor name: ");
+        System.out.print("🏪 Vendor name: ");
         String vendorName = scanner.nextLine().trim();
 
 
@@ -572,11 +574,11 @@ public class FinancialTracker {
 
         boolean running = true;
         while (running) {
-            System.out.println("1) Food");
-            System.out.println("2) Gas");
-            System.out.println("3) Entertainment");
-            System.out.println("4) Other");
-            System.out.print("Choose category: ");
+            System.out.println("🍔 (1) Food");
+            System.out.println("⛽ (2) Gas");
+            System.out.println("🎬 (3) Entertainment");
+            System.out.println("📦 (4) Other");
+            System.out.print("👉 Choose category: ");
             int categoryChoice = scanner.nextInt();scanner.nextLine();
 
             switch (categoryChoice) {
