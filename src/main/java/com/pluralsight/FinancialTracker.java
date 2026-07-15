@@ -1,5 +1,6 @@
 package com.pluralsight;
 
+import java.awt.*;
 import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -8,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Scanner;
+
 
 
 public class FinancialTracker {
@@ -36,12 +38,16 @@ public class FinancialTracker {
         boolean running = true;
 
         while (running) {
-            System.out.println("\nWelcome to TransactionApp");
+            //Coloredtext method is called here and you can just type the color you want
+            System.out.println(coloredText("╔═══════════════════════════════════╗", Colors.GREEN));
+            System.out.println(coloredText("║      Welcome to TransactionApp    ║", Colors.GREEN));
+            System.out.println(coloredText("╚═══════════════════════════════════╝", Colors.GREEN));
+
             System.out.println("Choose an option:");
-            System.out.println("D) Add Deposit");
-            System.out.println("P) Make Payment (Debit)");
-            System.out.println("L) Ledger");
-            System.out.println("X) Exit");
+            System.out.println(coloredText("D)", Colors.RED) + " Add Deposit");
+            System.out.println(coloredText("P)", Colors.RED) + " Make Payment (Debit)");
+            System.out.println(coloredText("L)", Colors.RED) + " Ledger");
+            System.out.println(coloredText("X)", Colors.RED) +" Exit");
 
             String input = scanner.nextLine().trim();
 
@@ -50,7 +56,7 @@ public class FinancialTracker {
                 case "P" -> addPayment(scanner);
                 case "L" -> ledgerMenu(scanner);
                 case "X" -> running = false;
-                default -> System.out.println("Invalid option");
+                default -> System.out.println(coloredText("Invalid option", Colors.RED));
             }
         }
         scanner.close();
@@ -543,4 +549,11 @@ public class FinancialTracker {
            }
        }
     }
+
+    //added helper method for colors
+    private static String coloredText(String text, Colors color) {
+       String coloredString = color + text + Colors.RESET;
+
+        return coloredString;
+    };
 }
