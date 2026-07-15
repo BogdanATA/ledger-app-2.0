@@ -1,6 +1,6 @@
-1000|2026-06-01|09:15:00|Grocery shopping|Walmart|-120.35|FOOD
-1001|2026-06-03|18:30:00|Movie tickets|AMC Theatres|-32.00|ENTERTAINMENT
-1002|2026-06-10|08:00:00|Gasoline fill-up|Shell|-45.00|GAS
-1003|2026-06-15|12:00:00|Freelance invoice paid|Joe|1500.00|OTHER
+1005|2026-07-06|10:00:00|Paycheck deposit|Acme Corp|2200.00|OTHER
 1004|2026-07-01|19:45:00|Dinner with friends|Olive Garden|-64.20|FOOD
-1005|2026-07-05|10:00:00|Paycheck deposit|Acme Corp|2200.00|OTHER
+1003|2026-06-15|12:00:00|Freelance invoice paid|Joe|1500.00|OTHER
+1002|2026-06-10|08:00:00|Gasoline fill-up|Shell|-45.00|GAS
+1001|2026-06-03|18:30:00|Movie tickets|AMC Theatres|-32.00|ENTERTAINMENT
+1000|2026-06-01|09:15:00|Grocery shopping|Walmart|-120.35|FOOD
