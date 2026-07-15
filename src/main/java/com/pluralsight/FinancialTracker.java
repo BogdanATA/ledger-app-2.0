@@ -78,18 +78,19 @@ public class FinancialTracker {
             while ((line = br.readLine()) != null) {    // while line isnt null keep reading
                 String[] tokens = line.split("\\|"); // split line each time it reads '|'
 
-                if (tokens.length != 6) continue; // if line inside file doesnt have exactly 5 tokens skip it
+                if (tokens.length != 7) continue; // if line inside file doesnt have exactly 7 tokens skip it
 
                 try {
-                    LocalDate date = LocalDate.parse(tokens[0], DATE_FMT);
-                    LocalTime time = LocalTime.parse(tokens[1], TIME_FMT);
-                    String description = tokens[2];
-                    String vendor = tokens[3];
-                    double amount = Double.parseDouble(tokens[4]);
-                    CategoryType category = CategoryType.valueOf(tokens[5]);
+                    int id = Integer.parseInt(tokens[0]);
+                    LocalDate date = LocalDate.parse(tokens[1], DATE_FMT);
+                    LocalTime time = LocalTime.parse(tokens[2], TIME_FMT);
+                    String description = tokens[3];
+                    String vendor = tokens[4];
+                    double amount = Double.parseDouble(tokens[5]);
+                    CategoryType category = CategoryType.valueOf(tokens[6]);
 
-                    // creates transaction object using parsed data from file
-                    Transaction transaction = new Transaction(date, time, description, vendor, amount, category);
+                    // creates transaction object using parsed data from file, reusing its persisted id
+                    Transaction transaction = new Transaction(id, date, time, description, vendor, amount, category);
 
                     transactions.add(transaction); // adds new transaction object into the transactions array list
                 } catch (Exception e) {
@@ -214,7 +215,8 @@ public class FinancialTracker {
             BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_NAME, true));
 
             // writes new object into file
-            bw.write(transaction.getDate().format(DATE_FMT) +
+            bw.write(transaction.getId() +
+                    "|" + transaction.getDate().format(DATE_FMT) +
                     "|" + transaction.getTime().format(TIME_FMT) +
                     "|" + transaction.getDescription() +
                     "|" + transaction.getVendor() +
@@ -306,8 +308,8 @@ public class FinancialTracker {
      * Prints formatted header for the ledger categories.
      * */
     private static void printLedgerHeader () {
-        System.out.printf("%-12s %-10s %-35s %-20s %-12s %s%n", "Date", "Time", "Description", "Vendor", "Category", "Amount in $");
-        System.out.println("-".repeat(95)); // creates line of dashes
+        System.out.printf("%-6s %-12s %-10s %-35s %-20s %-12s %s%n", "ID", "Date", "Time", "Description", "Vendor", "Category", "Amount in $");
+        System.out.println("-".repeat(101)); // creates line of dashes
     }
 
     /**
@@ -316,7 +318,8 @@ public class FinancialTracker {
      * @param transaction takes the transaction that needs to be printed
      * */
     private static void printTransaction(Transaction transaction) {
-        System.out.printf("%-12s %-10s %-35s %-20s %-12s %.2f%n", // assigns and holds x amount of spaces starting from the left
+        System.out.printf("%-6s %-12s %-10s %-35s %-20s %-12s %.2f%n", // assigns and holds x amount of spaces starting from the left
+                transaction.getId(),
                 transaction.getDate().format(DATE_FMT),
                 transaction.getTime().format(TIME_FMT),
                 transaction.getDescription(),
