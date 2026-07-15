@@ -36,13 +36,16 @@ public class FinancialTracker {
         boolean running = true;
 
         while (running) {
-            System.out.println("\nWelcome to TransactionApp");
+            System.out.println("\n💰 Welcome to TransactionApp 💰");
+            System.out.println("=================================");
             System.out.println("Choose an option:");
-            System.out.println("D) Add Deposit");
-            System.out.println("P) Make Payment (Debit)");
-            System.out.println("L) Ledger");
+            System.out.println("💵  (D) Add Deposit");
+            System.out.println("💳  (P) Make Payment (Debit)");
+            System.out.println("📒  (L) Ledger");
             System.out.println("E) Edit Transaction");
-            System.out.println("X) Exit");
+            System.out.println("🚪  (X) Exit");
+            System.out.println("=================================");
+
 
             String input = scanner.nextLine().trim();
 
@@ -115,7 +118,7 @@ public class FinancialTracker {
     private static void addDeposit(Scanner scanner) {
         // date + time user input and parse
         try {
-            System.out.print("Enter date and time (yyyy-MM-dd HH:mm:ss): ");
+            System.out.print("📅 Enter date and time (yyyy-MM-dd HH:mm:ss): ");
             String dateTimeInput = scanner.nextLine().trim();
 
             LocalDateTime dateTime = LocalDateTime.parse(dateTimeInput, DATETIME_FMT);
@@ -123,20 +126,20 @@ public class FinancialTracker {
             LocalTime time = dateTime.toLocalTime();
 
             // description
-            System.out.print("Enter description: ");
+            System.out.print("📝 Enter description: ");
             String description = scanner.nextLine().trim();
 
             // vendor
-            System.out.print("Enter vendor: ");
+            System.out.print("🏪 Enter vendor: ");
             String vendor = scanner.nextLine().trim();
 
             // amount
-            System.out.print("Enter amount: ");
+            System.out.print("💵 Enter amount: $");
             double amount = Double.parseDouble(scanner.nextLine().trim());
 
             // make sure amount is positive
             if (amount <= 0) {
-                System.out.println("Deposit amount must be positive.");
+                System.out.println("⚠️ Deposit amount must be positive.");
                 return;
             }
 
@@ -150,9 +153,9 @@ public class FinancialTracker {
 
             saveTransaction(transaction); // saves changes to the file
 
-            System.out.println("Deposit added successfully.");
+            System.out.println("✅ Deposit added successfully!");
         } catch (Exception e) {
-            System.out.println("Invalid input. Deposit not added.");
+            System.out.println("❌ Invalid input. Deposit not added.");
         }
     }
 
@@ -163,7 +166,7 @@ public class FinancialTracker {
      */
     private static void addPayment(Scanner scanner) {
         try {
-            System.out.print("Enter date and time (yyyy-MM-dd HH:mm:ss): ");
+            System.out.print("📅 Enter date and time (yyyy-MM-dd HH:mm:ss): ");
             String dateTimeInput = scanner.nextLine().trim();
 
             LocalDateTime dateTime = LocalDateTime.parse(dateTimeInput, DATETIME_FMT);
@@ -171,20 +174,20 @@ public class FinancialTracker {
             LocalTime time = dateTime.toLocalTime();
 
             // description
-            System.out.print("Enter description: ");
+            System.out.print("📝 Enter description: ");
             String description = scanner.nextLine().trim();
 
             // vendor
-            System.out.print("Enter vendor: ");
+            System.out.print("🏪 Enter vendor: ");
             String vendor = scanner.nextLine().trim();
 
             // amount
-            System.out.print("Enter amount: ");
+            System.out.print("💵 Enter amount: $");
             double amount = Double.parseDouble(scanner.nextLine().trim());
 
             // make sure amount is positive
             if (amount <= 0) {
-                System.out.println("Payment amount must be positive.");
+                System.out.println("⚠️ Payment amount must be positive.");
                 return;
             }
             //negate the payment entered
@@ -200,9 +203,9 @@ public class FinancialTracker {
 
             saveTransaction(transaction); // saves changes to the file
 
-            System.out.println("Payment added successfully.");
+            System.out.println("✅ Payment added successfully!");
         } catch (Exception e) {
-            System.out.println("Invalid input. Payment not added.");
+            System.out.println("❌ Invalid input. Payment not added.");
         }
     }
 
@@ -216,7 +219,7 @@ public class FinancialTracker {
             // appends new transaction line to the end of the file
             writeTransactionLine(bw, transaction);
         } catch (IOException e) {
-            System.out.println("Error saving transaction");
+            System.out.println("⚠️ Error saving transaction");
         }
     }
 
@@ -267,13 +270,15 @@ public class FinancialTracker {
 
         boolean running = true;
         while (running) {
-            System.out.println("\nLedger");
+            System.out.println("\n📒 Ledger");
+            System.out.println("=================================");
             System.out.println("Choose an option:");
-            System.out.println("A) All");
-            System.out.println("D) Deposits");
-            System.out.println("P) Payments");
-            System.out.println("R) Reports");
-            System.out.println("H) Home");
+            System.out.println("📋  (A) All");
+            System.out.println("💵  (D) Deposits");
+            System.out.println("💳  (P) Payments");
+            System.out.println("📊  (R) Reports");
+            System.out.println("🏠  (H) Home");
+            System.out.println("=================================");
 
             String input = scanner.nextLine().trim();
 
@@ -283,7 +288,7 @@ public class FinancialTracker {
                 case "P" -> displayPayments();
                 case "R" -> reportsMenu(scanner);
                 case "H" -> running = false;
-                default -> System.out.println("Invalid option");
+                default -> System.out.println("⚠️ Invalid option");
             }
         }
     }
@@ -529,15 +534,17 @@ public class FinancialTracker {
     private static void reportsMenu(Scanner scanner) {
         boolean running = true;
         while (running) {
-            System.out.println("\nReports");
+            System.out.println("\n📊 Reports");
+            System.out.println("=================================");
             System.out.println("Choose an option:");
-            System.out.println("1) Month To Date");
-            System.out.println("2) Previous Month");
-            System.out.println("3) Year To Date");
-            System.out.println("4) Previous Year");
-            System.out.println("5) Search by Vendor");
-            System.out.println("6) Custom Search");
-            System.out.println("0) Back");
+            System.out.println("1) 📅 Month To Date");
+            System.out.println("2) 📆 Previous Month");
+            System.out.println("3) 🗓️  Year To Date");
+            System.out.println("4) 📉 Previous Year");
+            System.out.println("5) 🏪 Search by Vendor");
+            System.out.println("6) 🔎 Custom Search");
+            System.out.println("0) 🔙 Back");
+            System.out.println("=================================");
 
             String input = scanner.nextLine().trim();
 
@@ -672,16 +679,16 @@ public class FinancialTracker {
      * @param scanner Used to read user input
      * */
     private static void customSearch(Scanner scanner) {
-        System.out.println("Custom Search. Press 'ENTER' to leave blank");
+        System.out.println("🔍 Custom Search — press 'ENTER' to leave blank");
 
-        LocalDate start = parseDate("Start date (yyyy-MM-dd): ", scanner);
+        LocalDate start = parseDate("📅 Start date (yyyy-MM-dd): ", scanner);
 
-        LocalDate end = parseDate("End date (yyyy-MM-dd): ", scanner);
+        LocalDate end = parseDate("📅 End date (yyyy-MM-dd): ", scanner);
 
-        System.out.print("Description: ");
+        System.out.print("📝 Description: ");
         String description = scanner.nextLine().trim();
 
-        System.out.print("Vendor name: ");
+        System.out.print("🏪 Vendor name: ");
         String vendorName = scanner.nextLine().trim();
 
 
@@ -762,11 +769,11 @@ public class FinancialTracker {
 
         boolean running = true;
         while (running) {
-            System.out.println("1) Food");
-            System.out.println("2) Gas");
-            System.out.println("3) Entertainment");
-            System.out.println("4) Other");
-            System.out.print("Choose category: ");
+            System.out.println("🍔 (1) Food");
+            System.out.println("⛽ (2) Gas");
+            System.out.println("🎬 (3) Entertainment");
+            System.out.println("📦 (4) Other");
+            System.out.print("👉 Choose category: ");
             int categoryChoice = scanner.nextInt();scanner.nextLine();
 
             switch (categoryChoice) {
