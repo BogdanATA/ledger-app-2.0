@@ -11,7 +11,6 @@ import java.util.Comparator;
 import java.util.Scanner;
 
 
-
 public class FinancialTracker {
 
     /* ------------------------------------------------------------------
@@ -38,16 +37,16 @@ public class FinancialTracker {
         boolean running = true;
 
         while (running) {
-            //Coloredtext method is called here and you can just type the color you want
             System.out.println(coloredText("\n"+"╔═══════════════════════════════════╗", Colors.GREEN));
             System.out.println(coloredText("║      Welcome to TransactionApp    ║", Colors.GREEN));
             System.out.println(coloredText("╚═══════════════════════════════════╝", Colors.GREEN) + "\n");
 
             System.out.println("Choose an option:");
-            System.out.println(coloredText("D)", Colors.RED) + " Add Deposit");
-            System.out.println(coloredText("P)", Colors.RED) + " Make Payment (Debit)");
-            System.out.println(coloredText("L)", Colors.RED) + " Ledger");
-            System.out.println(coloredText("X)", Colors.RED) +" Exit");
+            System.out.println(coloredText("D)", Colors.RED) + " 💵 Add Deposit");
+            System.out.println(coloredText("P)", Colors.RED) + " 💳 Make Payment (Debit)");
+            System.out.println(coloredText("L)", Colors.RED) + " 📒 Ledger");
+            System.out.println(coloredText("E)", Colors.RED) + " ✏️ Edit/Delete Transaction");
+            System.out.println(coloredText("X)", Colors.RED) + " 🚪 Exit");
 
             String input = scanner.nextLine().trim();
 
@@ -55,6 +54,7 @@ public class FinancialTracker {
                 case "D" -> addDeposit(scanner);
                 case "P" -> addPayment(scanner);
                 case "L" -> ledgerMenu(scanner);
+                case "E" -> editDeleteMenu(scanner);
                 case "X" -> running = false;
                 default -> System.out.println(coloredText("Invalid option", Colors.RED));
             }
@@ -84,17 +84,19 @@ public class FinancialTracker {
             while ((line = br.readLine()) != null) {    // while line isnt null keep reading
                 String[] tokens = line.split("\\|"); // split line each time it reads '|'
 
-                if (tokens.length != 5) continue; // if line inside file doesnt have exactly 5 tokens skip it
+                if (tokens.length != 7) continue; // if line inside file doesnt have exactly 7 tokens skip it
 
                 try {
-                    LocalDate date = LocalDate.parse(tokens[0], DATE_FMT);
-                    LocalTime time = LocalTime.parse(tokens[1], TIME_FMT);
-                    String description = tokens[2];
-                    String vendor = tokens[3];
-                    double amount = Double.parseDouble(tokens[4]);
+                    int id = Integer.parseInt(tokens[0]);
+                    LocalDate date = LocalDate.parse(tokens[1], DATE_FMT);
+                    LocalTime time = LocalTime.parse(tokens[2], TIME_FMT);
+                    String description = tokens[3];
+                    String vendor = tokens[4];
+                    double amount = Double.parseDouble(tokens[5]);
+                    CategoryType category = CategoryType.valueOf(tokens[6]);
 
-                    // creates transaction object using parsed data from file
-                    Transaction transaction = new Transaction(date, time, description, vendor, amount);
+                    // creates transaction object using parsed data from file, reusing its persisted id
+                    Transaction transaction = new Transaction(id, date, time, description, vendor, amount, category);
 
                     transactions.add(transaction); // adds new transaction object into the transactions array list
                 } catch (Exception e) {
@@ -117,7 +119,7 @@ public class FinancialTracker {
     private static void addDeposit(Scanner scanner) {
         // date + time user input and parse
         try {
-            System.out.print("Enter date and time (yyyy-MM-dd HH:mm:ss): ");
+            System.out.print("📅 Enter date and time (yyyy-MM-dd HH:mm:ss): ");
             String dateTimeInput = scanner.nextLine().trim();
 
             LocalDateTime dateTime = LocalDateTime.parse(dateTimeInput, DATETIME_FMT);
@@ -125,32 +127,36 @@ public class FinancialTracker {
             LocalTime time = dateTime.toLocalTime();
 
             // description
-            System.out.print("Enter description: ");
+            System.out.print("📝 Enter description: ");
             String description = scanner.nextLine().trim();
 
             // vendor
-            System.out.print("Enter vendor: ");
+            System.out.print("🏪 Enter vendor: ");
             String vendor = scanner.nextLine().trim();
 
             // amount
-            System.out.print("Enter amount: ");
+            System.out.print("💵 Enter amount: $");
             double amount = Double.parseDouble(scanner.nextLine().trim());
 
             // make sure amount is positive
             if (amount <= 0) {
-                System.out.println("\n" + coloredText("Deposit amount must be positive.",Colors.RED) +"\n");
+                System.out.println("\n" + coloredText("⚠️ Deposit amount must be positive.", Colors.RED) + "\n");
                 return;
             }
+
+            // creates a new category for the helper method
+            CategoryType category = selectCategory(scanner);
+
             // creates transaction object using parsed data from file
-            Transaction transaction = new Transaction(date, time, description, vendor, amount);
+            Transaction transaction = new Transaction(date, time, description, vendor, amount, category);
 
             transactions.add(transaction); // adds new transaction object into the transactions array list
 
             saveTransaction(transaction); // saves changes to the file
 
-            System.out.println("\n" + coloredText("Deposit added successfully.",Colors.GREEN)+ "\n");
+            System.out.println("\n" + coloredText("✅ Deposit added successfully.", Colors.GREEN) + "\n");
         } catch (Exception e) {
-            System.out.println("\n" + coloredText("Invalid input. Deposit not added.", Colors.RED) +"\n");
+            System.out.println("\n" + coloredText("❌ Invalid input. Deposit not added.", Colors.RED) + "\n");
         }
     }
 
@@ -161,7 +167,7 @@ public class FinancialTracker {
      */
     private static void addPayment(Scanner scanner) {
         try {
-            System.out.print("Enter date and time (yyyy-MM-dd HH:mm:ss): ");
+            System.out.print("📅 Enter date and time (yyyy-MM-dd HH:mm:ss): ");
             String dateTimeInput = scanner.nextLine().trim();
 
             LocalDateTime dateTime = LocalDateTime.parse(dateTimeInput, DATETIME_FMT);
@@ -169,34 +175,38 @@ public class FinancialTracker {
             LocalTime time = dateTime.toLocalTime();
 
             // description
-            System.out.print("Enter description: ");
+            System.out.print("📝 Enter description: ");
             String description = scanner.nextLine().trim();
 
             // vendor
-            System.out.print("Enter vendor: ");
+            System.out.print("🏪 Enter vendor: ");
             String vendor = scanner.nextLine().trim();
 
             // amount
-            System.out.print("Enter amount: ");
+            System.out.print("💵 Enter amount: $");
             double amount = Double.parseDouble(scanner.nextLine().trim());
 
             // make sure amount is positive
             if (amount <= 0) {
-                System.out.println("\n" + coloredText("Payment amount must be positive.", Colors.RED) +"\n");
+                System.out.println("\n" + coloredText("⚠️ Payment amount must be positive.", Colors.RED) + "\n");
                 return;
             }
             //negate the payment entered
             double negatedAmount = amount * -1;
+
+            // creates a new category for the helper method
+            CategoryType category = selectCategory(scanner);
+
             // creates transaction object using parsed data from file
-            Transaction transaction = new Transaction(date, time, description, vendor, negatedAmount);
+            Transaction transaction = new Transaction(date, time, description, vendor, negatedAmount, category);
 
             transactions.add(transaction); // adds new transaction object into the transactions array list
 
             saveTransaction(transaction); // saves changes to the file
 
-            System.out.println("\n" + coloredText("Payment added successfully.", Colors.GREEN) +"\n");
+            System.out.println("\n" + coloredText("✅ Payment added successfully.", Colors.GREEN) + "\n");
         } catch (Exception e) {
-            System.out.println("\n" + coloredText("Invalid input. Payment not added.", Colors.RED) +"\n");
+            System.out.println("\n" + coloredText("❌ Invalid input. Payment not added.", Colors.RED) + "\n");
         }
     }
 
@@ -206,23 +216,44 @@ public class FinancialTracker {
      * @param transaction takes transaction object and writes it to file
      * */
     private static void saveTransaction(Transaction transaction) {
-        try {
-            // creates buffered writer and appends all changes to file
-            BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_NAME, true));
-
-            // writes new object into file
-            bw.write(transaction.getDate().format(DATE_FMT) +
-                    "|" + transaction.getTime().format(TIME_FMT) +
-                    "|" + transaction.getDescription() +
-                    "|" + transaction.getVendor() +
-                    "|" + String.format("%.2f", transaction.getAmount()));
-
-            bw.newLine();
-            bw.close();
-
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_NAME, true))) {
+            // appends new transaction line to the end of the file
+            writeTransactionLine(bw, transaction);
         } catch (IOException e) {
-            System.out.println("\n" + coloredText("Error saving transaction", Colors.RED) +"\n");
+            System.out.println("\n" + coloredText("Error saving transaction", Colors.RED) + "\n");
         }
+    }
+
+    /**
+     * Rewrites the whole file from the in-memory transactions list.
+     * Needed after an edit or delete, since those change/remove a line
+     * that isn't necessarily the last one in the file.
+     * */
+    private static void rewriteTransactionsFile() {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_NAME, false))) {
+            for (Transaction transaction : transactions) {
+                writeTransactionLine(bw, transaction);
+            }
+        } catch (IOException e) {
+            System.out.println(coloredText("Error saving transactions", Colors.RED));
+        }
+    }
+
+    /**
+     * Writes a single transaction as a line in the CSV format.
+     *
+     * @param bw the writer to write to
+     * @param transaction the transaction to serialize
+     * */
+    private static void writeTransactionLine(BufferedWriter bw, Transaction transaction) throws IOException {
+        bw.write(transaction.getId() +
+                "|" + transaction.getDate().format(DATE_FMT) +
+                "|" + transaction.getTime().format(TIME_FMT) +
+                "|" + transaction.getDescription() +
+                "|" + transaction.getVendor() +
+                "|" + String.format("%.2f", transaction.getAmount()) +
+                "|" + transaction.getCategory());
+        bw.newLine();
     }
 
     /* ------------------------------------------------------------------
@@ -245,11 +276,11 @@ public class FinancialTracker {
             System.out.println(coloredText("╚═══════════════════════════════════╝", Colors.GREEN) + "\n");
 
             System.out.println("Choose an option:");
-            System.out.println(coloredText("A)", Colors.RED) + "All");
-            System.out.println(coloredText("D)", Colors.RED) + "Deposits");
-            System.out.println(coloredText("P)", Colors.RED) + "Payments");
-            System.out.println(coloredText("R)", Colors.RED) + "Reports");
-            System.out.println(coloredText("D)", Colors.RED) + "Home");
+            System.out.println(coloredText("A)", Colors.RED) + " 📋 All");
+            System.out.println(coloredText("D)", Colors.RED) + " 💵 Deposits");
+            System.out.println(coloredText("P)", Colors.RED) + " 💳 Payments");
+            System.out.println(coloredText("R)", Colors.RED) + " 📊 Reports");
+            System.out.println(coloredText("H)", Colors.RED) + " 🏠 Home");
 
             String input = scanner.nextLine().trim();
 
@@ -260,6 +291,179 @@ public class FinancialTracker {
                 case "R" -> reportsMenu(scanner);
                 case "H" -> running = false;
                 default -> System.out.println(coloredText("Invalid option", Colors.RED));
+            }
+        }
+    }
+
+    /* ------------------------------------------------------------------
+       Edit / Delete menu
+       ------------------------------------------------------------------ */
+    /**
+     * Displays the edit/delete menu and lets the user navigate it.
+     *
+     * @param scanner Used to read user navigation commands
+     * */
+    private static void editDeleteMenu(Scanner scanner) {
+        boolean running = true;
+        while (running) {
+            System.out.println("\n"+coloredText("╔═══════════════════════════════════╗", Colors.GREEN));
+            System.out.println(coloredText("║      Edit/Delete Transaction      ║", Colors.GREEN));
+            System.out.println(coloredText("╚═══════════════════════════════════╝", Colors.GREEN) + "\n");
+
+            System.out.println("Choose an option:");
+            System.out.println(coloredText("E)", Colors.RED) + " Edit");
+            System.out.println(coloredText("D)", Colors.RED) + " Delete");
+            System.out.println(coloredText("H)", Colors.RED) + " Home");
+
+            String input = scanner.nextLine().trim();
+
+            switch (input.toUpperCase()) {
+                case "E" -> editTransaction(scanner);
+                case "D" -> deleteTransaction(scanner);
+                case "H" -> running = false;
+                default -> System.out.println(coloredText("Invalid option", Colors.RED));
+            }
+        }
+    }
+
+    /**
+     * Shows the ledger, asks for a transaction id, then walks through each
+     * field letting the user keep the current value (Enter) or replace it.
+     *
+     * @param scanner Used to read user input
+     * */
+    private static void editTransaction(Scanner scanner) {
+        displayLedger();
+
+        System.out.print("\nEnter ID to edit: ");
+        int id;
+        try {
+            id = Integer.parseInt(scanner.nextLine().trim());
+        } catch (NumberFormatException e) {
+            System.out.println(coloredText("Invalid ID.", Colors.RED));
+            return;
+        }
+
+        Transaction transaction = findTransactionById(id);
+        if (transaction == null) {
+            System.out.println(coloredText("No transaction found with ID " + id, Colors.RED));
+            return;
+        }
+
+        System.out.println("Editing transaction " + id + ". Press Enter to keep the current value.");
+
+        System.out.print("Date and time (yyyy-MM-dd HH:mm:ss) [" +
+                transaction.getDate().format(DATE_FMT) + " " + transaction.getTime().format(TIME_FMT) + "]: ");
+        String dateTimeInput = scanner.nextLine().trim();
+        if (!dateTimeInput.isBlank()) {
+            try {
+                LocalDateTime dateTime = LocalDateTime.parse(dateTimeInput, DATETIME_FMT);
+                transaction.setDate(dateTime.toLocalDate());
+                transaction.setTime(dateTime.toLocalTime());
+            } catch (Exception e) {
+                System.out.println("Invalid date/time, keeping current value.");
+            }
+        }
+
+        System.out.print("Description [" + transaction.getDescription() + "]: ");
+        String description = scanner.nextLine().trim();
+        if (!description.isBlank()) transaction.setDescription(description);
+
+        System.out.print("Vendor [" + transaction.getVendor() + "]: ");
+        String vendor = scanner.nextLine().trim();
+        if (!vendor.isBlank()) transaction.setVendor(vendor);
+
+        System.out.print("Amount [" + String.format("%.2f", transaction.getAmount()) + "]: ");
+        String amountInput = scanner.nextLine().trim();
+        if (!amountInput.isBlank()) {
+            try {
+                transaction.setAmount(Double.parseDouble(amountInput));
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid amount, keeping current value.");
+            }
+        }
+
+        transaction.setCategory(editCategory(scanner, transaction.getCategory()));
+
+        rewriteTransactionsFile();
+        System.out.println(coloredText("Transaction updated successfully.", Colors.GREEN));
+    }
+
+    /**
+     * Shows the ledger, asks for a transaction id, confirms with the user,
+     * then removes the matching transaction.
+     *
+     * @param scanner Used to read user input
+     * */
+    private static void deleteTransaction(Scanner scanner) {
+        displayLedger();
+
+        System.out.print("\nEnter ID to delete: ");
+        int id;
+        try {
+            id = Integer.parseInt(scanner.nextLine().trim());
+        } catch (NumberFormatException e) {
+            System.out.println(coloredText("Invalid ID.", Colors.RED));
+            return;
+        }
+
+        Transaction transaction = findTransactionById(id);
+        if (transaction == null) {
+            System.out.println(coloredText("No transaction found with ID " + id, Colors.RED));
+            return;
+        }
+
+        printLedgerHeader();
+        printTransaction(transaction);
+
+        System.out.print("Are you sure you want to delete this transaction? (Y/N): ");
+        String confirm = scanner.nextLine().trim();
+        if (confirm.equalsIgnoreCase("Y")) {
+            transactions.remove(transaction);
+            rewriteTransactionsFile();
+            System.out.println(coloredText("Transaction deleted successfully.", Colors.GREEN));
+        } else {
+            System.out.println("Delete cancelled.");
+        }
+    }
+
+    /**
+     * Finds a transaction by its id.
+     *
+     * @param id the id to search for
+     * @return the matching Transaction, or null if none found
+     * */
+    private static Transaction findTransactionById(int id) {
+        for (Transaction transaction : transactions) {
+            if (transaction.getId() == id) return transaction;
+        }
+        return null;
+    }
+
+    /**
+     * prompts for a new category, or keeps the current one if left blank
+     *
+     * @param scanner Used to read the user given category type
+     * @param current the transaction's current category, returned if the user presses Enter
+     * @return the CategoryType the user selected, or current if left blank
+     * */
+    private static CategoryType editCategory(Scanner scanner, CategoryType current) {
+        System.out.println("1) Food");
+        System.out.println("2) Gas");
+        System.out.println("3) Entertainment");
+        System.out.println("4) Other");
+        System.out.print("Choose new category [" + current + "], or press Enter to keep current: ");
+
+        while (true) {
+            String input = scanner.nextLine().trim();
+            if (input.isBlank()) return current;
+
+            switch (input) {
+                case "1": return CategoryType.FOOD;
+                case "2": return CategoryType.GAS;
+                case "3": return CategoryType.ENTERTAINMENT;
+                case "4": return CategoryType.OTHER;
+                default: System.out.print("Invalid option. Choose 1-4 or press Enter to keep current: ");
             }
         }
     }
@@ -305,8 +509,8 @@ public class FinancialTracker {
      * Prints formatted header for the ledger categories.
      * */
     private static void printLedgerHeader () {
-        System.out.printf("%-12s %-10s %-35s %-20s %s%n", "Date", "Time", "Description", "Vendor", "Amount in $");
-        System.out.println("-".repeat(95)); // creates line of dashes
+        System.out.printf("%-6s %-12s %-10s %-35s %-20s %-12s %s%n", "ID", "Date", "Time", "Description", "Vendor", "Category", "Amount in $");
+        System.out.println("-".repeat(101)); // creates line of dashes
     }
 
     /**
@@ -315,13 +519,15 @@ public class FinancialTracker {
      * @param transaction takes the transaction that needs to be printed
      * */
     private static void printTransaction(Transaction transaction) {
-        System.out.printf("%-12s %-10s %-35s %-20s %.2f%n", // assigns and holds x amount of spaces starting from the left
+        System.out.printf("%-6s %-12s %-10s %-35s %-20s %-12s %.2f%n", // assigns and holds x amount of spaces starting from the left
+                transaction.getId(),
                 transaction.getDate().format(DATE_FMT),
                 transaction.getTime().format(TIME_FMT),
                 transaction.getDescription(),
                 transaction.getVendor(),
+                transaction.getCategory(),
                 transaction.getAmount());
-        }
+    }
     /* ------------------------------------------------------------------
        Reports menu
        ------------------------------------------------------------------ */
@@ -338,13 +544,13 @@ public class FinancialTracker {
             System.out.println(coloredText("╚═══════════════════════════════════╝", Colors.GREEN) + "\n");
 
             System.out.println("Choose an option:");
-            System.out.println(coloredText("1)", Colors.RED) + "Month To Date");
-            System.out.println(coloredText("2)", Colors.RED) + "Previous Month");
-            System.out.println(coloredText("3)", Colors.RED) + "Year To Date");
-            System.out.println(coloredText("4)", Colors.RED) + "Previous Year");
-            System.out.println(coloredText("5)", Colors.RED) + "Search by Vendor");
-            System.out.println(coloredText("6)", Colors.RED) + "Custom Search");
-            System.out.println(coloredText("0)", Colors.RED) + "Back");
+            System.out.println(coloredText("1)", Colors.RED) + " 📅 Month To Date");
+            System.out.println(coloredText("2)", Colors.RED) + " 📆 Previous Month");
+            System.out.println(coloredText("3)", Colors.RED) + " 🗓️ Year To Date");
+            System.out.println(coloredText("4)", Colors.RED) + " 📉 Previous Year");
+            System.out.println(coloredText("5)", Colors.RED) + " 🏪 Search by Vendor");
+            System.out.println(coloredText("6)", Colors.RED) + " 🔎 Custom Search");
+            System.out.println(coloredText("0)", Colors.RED) + " 🔙 Back");
 
             String input = scanner.nextLine().trim();
 
@@ -479,16 +685,16 @@ public class FinancialTracker {
      * @param scanner Used to read user input
      * */
     private static void customSearch(Scanner scanner) {
-        System.out.println("Custom Search. Press 'ENTER' to leave blank");
+        System.out.println("🔍 Custom Search — press 'ENTER' to leave blank");
 
-        LocalDate start = parseDate("Start date (yyyy-MM-dd): ", scanner);
+        LocalDate start = parseDate("📅 Start date (yyyy-MM-dd): ", scanner);
 
-        LocalDate end = parseDate("End date (yyyy-MM-dd): ", scanner);
+        LocalDate end = parseDate("📅 End date (yyyy-MM-dd): ", scanner);
 
-        System.out.print("Description: ");
+        System.out.print("📝 Description: ");
         String description = scanner.nextLine().trim();
 
-        System.out.print("Vendor name: ");
+        System.out.print("🏪 Vendor name: ");
         String vendorName = scanner.nextLine().trim();
 
 
@@ -518,7 +724,7 @@ public class FinancialTracker {
      * @param scanner Used to read the user given date
      * @return parsed LocalDate or null if user leaves input blank
      * */
-   private static LocalDate parseDate(String prompt, Scanner scanner) {
+    private static LocalDate parseDate(String prompt, Scanner scanner) {
 
         while (true) {
             System.out.print(prompt);
@@ -543,23 +749,73 @@ public class FinancialTracker {
      * */
     private static Double parseDouble(String prompt, Scanner scanner) {
 
-       while (true) {
-           System.out.print(prompt);
-           String input = scanner.nextLine().trim();
+        while (true) {
+            System.out.print(prompt);
+            String input = scanner.nextLine().trim();
 
-           if (input.isBlank()) return null;
-           try {
-               return Double.parseDouble(input);
-           } catch (Exception e) {
-               System.out.println("Invalid amount. Please enter a number or press Enter to skip.");
-           }
-       }
+            if (input.isBlank()) return null;
+            try {
+                return Double.parseDouble(input);
+            } catch (Exception e) {
+                System.out.println("Invalid amount. Please enter a number or press Enter to skip.");
+            }
+        }
+    }
+
+    /**
+     * prompts for a category type
+     *
+     * @param scanner Used to read the user given category type
+     * @return the CategoryType the user selected; keeps prompting until valid input is given
+     * */
+    // category type menu helper method
+    private static CategoryType selectCategory(Scanner scanner) {
+
+        CategoryType category = null;
+
+        boolean running = true;
+        while (running) {
+            System.out.println(coloredText("1)", Colors.RED) + " 🍔 Food");
+            System.out.println(coloredText("2)", Colors.RED) + " ⛽ Gas");
+            System.out.println(coloredText("3)", Colors.RED) + " 🎬 Entertainment");
+            System.out.println(coloredText("4)", Colors.RED) + " 📦 Other");
+            System.out.print("👉 Choose category: ");
+            int categoryChoice;
+            try {
+                categoryChoice = Integer.parseInt(scanner.nextLine().trim());
+            } catch (NumberFormatException e) {
+                System.out.println(coloredText("Invalid option", Colors.RED));
+                continue;
+            }
+
+            switch (categoryChoice) {
+
+                case 1 -> {
+                    category = CategoryType.FOOD;
+                    running = false;
+                }
+                case 2 -> {
+                    category = CategoryType.GAS;
+                    running = false;
+                }
+                case 3 -> {
+                    category = CategoryType.ENTERTAINMENT;
+                    running = false;
+                }
+                case 4 -> {
+                    category = CategoryType.OTHER;
+                    running = false;
+                }
+                default -> System.out.println(coloredText("Invalid option", Colors.RED));
+            }
+        }
+        return category;
     }
 
     //added helper method for colors
     private static String coloredText(String text, Colors color) {
-       String coloredString = color + text + Colors.RESET;
+        String coloredString = color + text + Colors.RESET;
 
         return coloredString;
-    };
+    }
 }
