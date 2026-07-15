@@ -510,7 +510,7 @@ public class FinancialTracker {
      * */
     private static void printLedgerHeader () {
         System.out.printf("%-6s %-12s %-10s %-35s %-20s %-12s %s%n", "ID", "Date", "Time", "Description", "Vendor", "Category", "Amount in $");
-        System.out.println("-".repeat(101)); // creates line of dashes
+        System.out.println("-".repeat(113)); // creates line of dashes
     }
 
     /**
@@ -519,14 +519,18 @@ public class FinancialTracker {
      * @param transaction takes the transaction that needs to be printed
      * */
     private static void printTransaction(Transaction transaction) {
-        System.out.printf("%-6s %-12s %-10s %-35s %-20s %-12s %.2f%n", // assigns and holds x amount of spaces starting from the left
+        double amount = transaction.getAmount();
+        Colors amountColor = amount < 0 ? Colors.RED : Colors.GREEN;
+        String amountText = coloredText(String.format("%.2f", amount), amountColor);
+
+        System.out.printf("%-6s %-12s %-10s %-35s %-20s %-12s %s%n", // %.2f -> %s
                 transaction.getId(),
                 transaction.getDate().format(DATE_FMT),
                 transaction.getTime().format(TIME_FMT),
                 transaction.getDescription(),
                 transaction.getVendor(),
                 transaction.getCategory(),
-                transaction.getAmount());
+                amountText);   // was transaction.getAmount()
     }
     /* ------------------------------------------------------------------
        Reports menu
