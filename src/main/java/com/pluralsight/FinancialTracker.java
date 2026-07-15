@@ -304,11 +304,13 @@ public class FinancialTracker {
     private static void editDeleteMenu(Scanner scanner) {
         boolean running = true;
         while (running) {
-            System.out.println("\nEdit/Delete Transaction");
+            System.out.println("\n✏️ Edit/Delete Transaction");
+            System.out.println("=================================");
             System.out.println("Choose an option:");
-            System.out.println("E) Edit");
-            System.out.println("D) Delete");
-            System.out.println("H) Home");
+            System.out.println("📝  (E) Edit");
+            System.out.println("🗑️  (D) Delete");
+            System.out.println("🏠  (H) Home");
+            System.out.println("=================================");
 
             String input = scanner.nextLine().trim();
 
@@ -316,7 +318,7 @@ public class FinancialTracker {
                 case "E" -> editTransaction(scanner);
                 case "D" -> deleteTransaction(scanner);
                 case "H" -> running = false;
-                default -> System.out.println("Invalid option");
+                default -> System.out.println("⚠️ Invalid option");
             }
         }
     }
@@ -330,7 +332,7 @@ public class FinancialTracker {
     private static void editTransaction(Scanner scanner) {
         displayLedger();
 
-        System.out.print("\nEnter ID to edit: ");
+        System.out.print("\n🔎 Enter ID to edit: ");
         int id;
         try {
             id = Integer.parseInt(scanner.nextLine().trim());
@@ -341,13 +343,13 @@ public class FinancialTracker {
 
         Transaction transaction = findTransactionById(id);
         if (transaction == null) {
-            System.out.println("No transaction found with ID " + id);
+            System.out.println("❌ No transaction found with ID " + id);
             return;
         }
 
-        System.out.println("Editing transaction " + id + ". Press Enter to keep the current value.");
+        System.out.println("✏️ Editing transaction " + id + ". Press Enter to keep the current value.");
 
-        System.out.print("Date and time (yyyy-MM-dd HH:mm:ss) [" +
+        System.out.print("📅 Date and time (yyyy-MM-dd HH:mm:ss) [" +
                 transaction.getDate().format(DATE_FMT) + " " + transaction.getTime().format(TIME_FMT) + "]: ");
         String dateTimeInput = scanner.nextLine().trim();
         if (!dateTimeInput.isBlank()) {
@@ -356,32 +358,32 @@ public class FinancialTracker {
                 transaction.setDate(dateTime.toLocalDate());
                 transaction.setTime(dateTime.toLocalTime());
             } catch (Exception e) {
-                System.out.println("Invalid date/time, keeping current value.");
+                System.out.println("⚠️ Invalid date/time, keeping current value.");
             }
         }
 
-        System.out.print("Description [" + transaction.getDescription() + "]: ");
+        System.out.print("📝 Description [" + transaction.getDescription() + "]: ");
         String description = scanner.nextLine().trim();
         if (!description.isBlank()) transaction.setDescription(description);
 
-        System.out.print("Vendor [" + transaction.getVendor() + "]: ");
+        System.out.print("🏪 Vendor [" + transaction.getVendor() + "]: ");
         String vendor = scanner.nextLine().trim();
         if (!vendor.isBlank()) transaction.setVendor(vendor);
 
-        System.out.print("Amount [" + String.format("%.2f", transaction.getAmount()) + "]: ");
+        System.out.print("💵 Amount [" + String.format("%.2f", transaction.getAmount()) + "]: ");
         String amountInput = scanner.nextLine().trim();
         if (!amountInput.isBlank()) {
             try {
                 transaction.setAmount(Double.parseDouble(amountInput));
             } catch (NumberFormatException e) {
-                System.out.println("Invalid amount, keeping current value.");
+                System.out.println("⚠️ Invalid amount, keeping current value.");
             }
         }
 
         transaction.setCategory(editCategory(scanner, transaction.getCategory()));
 
         rewriteTransactionsFile();
-        System.out.println("Transaction updated successfully.");
+        System.out.println("✅ Transaction updated successfully.");
     }
 
     /**
@@ -393,32 +395,32 @@ public class FinancialTracker {
     private static void deleteTransaction(Scanner scanner) {
         displayLedger();
 
-        System.out.print("\nEnter ID to delete: ");
+        System.out.print("\n🔎 Enter ID to delete: ");
         int id;
         try {
             id = Integer.parseInt(scanner.nextLine().trim());
         } catch (NumberFormatException e) {
-            System.out.println("Invalid ID.");
+            System.out.println("⚠️ Invalid ID.");
             return;
         }
 
         Transaction transaction = findTransactionById(id);
         if (transaction == null) {
-            System.out.println("No transaction found with ID " + id);
+            System.out.println("❌ No transaction found with ID " + id);
             return;
         }
 
         printLedgerHeader();
         printTransaction(transaction);
 
-        System.out.print("Are you sure you want to delete this transaction? (Y/N): ");
+        System.out.print("🗑️ Are you sure you want to delete this transaction? (Y/N): ");
         String confirm = scanner.nextLine().trim();
         if (confirm.equalsIgnoreCase("Y")) {
             transactions.remove(transaction);
             rewriteTransactionsFile();
-            System.out.println("Transaction deleted successfully.");
+            System.out.println("✅ Transaction deleted successfully.");
         } else {
-            System.out.println("Delete cancelled.");
+            System.out.println("🚫 Delete cancelled.");
         }
     }
 
@@ -443,11 +445,11 @@ public class FinancialTracker {
      * @return the CategoryType the user selected, or current if left blank
      * */
     private static CategoryType editCategory(Scanner scanner, CategoryType current) {
-        System.out.println("1) Food");
-        System.out.println("2) Gas");
-        System.out.println("3) Entertainment");
-        System.out.println("4) Other");
-        System.out.print("Choose new category [" + current + "], or press Enter to keep current: ");
+        System.out.println("🍔 (1) Food");
+        System.out.println("⛽ (2) Gas");
+        System.out.println("🎬 (3) Entertainment");
+        System.out.println("📦 (4) Other");
+        System.out.print("👉 Choose new category [" + current + "], or press Enter to keep current: ");
 
         while (true) {
             String input = scanner.nextLine().trim();
@@ -458,7 +460,7 @@ public class FinancialTracker {
                 case "2": return CategoryType.GAS;
                 case "3": return CategoryType.ENTERTAINMENT;
                 case "4": return CategoryType.OTHER;
-                default: System.out.print("Invalid option. Choose 1-4 or press Enter to keep current: ");
+                default: System.out.print("⚠️ Invalid option. Choose 1-4 or press Enter to keep current: ");
             }
         }
     }
