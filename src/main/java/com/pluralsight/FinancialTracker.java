@@ -42,8 +42,10 @@ public class FinancialTracker {
             System.out.println("💵  (D) Add Deposit");
             System.out.println("💳  (P) Make Payment (Debit)");
             System.out.println("📒  (L) Ledger");
+            System.out.println("E) Edit Transaction");
             System.out.println("🚪  (X) Exit");
             System.out.println("=================================");
+
 
             String input = scanner.nextLine().trim();
 
@@ -51,6 +53,7 @@ public class FinancialTracker {
                 case "D" -> addDeposit(scanner);
                 case "P" -> addPayment(scanner);
                 case "L" -> ledgerMenu(scanner);
+                case "E" -> editDeleteMenu(scanner);
                 case "X" -> running = false;
                 default -> System.out.println("Invalid option");
             }
@@ -80,18 +83,19 @@ public class FinancialTracker {
             while ((line = br.readLine()) != null) {    // while line isnt null keep reading
                 String[] tokens = line.split("\\|"); // split line each time it reads '|'
 
-                if (tokens.length != 6) continue; // if line inside file doesnt have exactly 5 tokens skip it
+                if (tokens.length != 7) continue; // if line inside file doesnt have exactly 7 tokens skip it
 
                 try {
-                    LocalDate date = LocalDate.parse(tokens[0], DATE_FMT);
-                    LocalTime time = LocalTime.parse(tokens[1], TIME_FMT);
-                    String description = tokens[2];
-                    String vendor = tokens[3];
-                    double amount = Double.parseDouble(tokens[4]);
-                    CategoryType category = CategoryType.valueOf(tokens[5]);
+                    int id = Integer.parseInt(tokens[0]);
+                    LocalDate date = LocalDate.parse(tokens[1], DATE_FMT);
+                    LocalTime time = LocalTime.parse(tokens[2], TIME_FMT);
+                    String description = tokens[3];
+                    String vendor = tokens[4];
+                    double amount = Double.parseDouble(tokens[5]);
+                    CategoryType category = CategoryType.valueOf(tokens[6]);
 
-                    // creates transaction object using parsed data from file
-                    Transaction transaction = new Transaction(date, time, description, vendor, amount, category);
+                    // creates transaction object using parsed data from file, reusing its persisted id
+                    Transaction transaction = new Transaction(id, date, time, description, vendor, amount, category);
 
                     transactions.add(transaction); // adds new transaction object into the transactions array list
                 } catch (Exception e) {
@@ -211,25 +215,44 @@ public class FinancialTracker {
      * @param transaction takes transaction object and writes it to file
      * */
     private static void saveTransaction(Transaction transaction) {
-        try {
-            // creates buffered writer and appends all changes to file
-            BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_NAME, true));
-
-
-            // writes new object into file
-            bw.write(transaction.getDate().format(DATE_FMT) +
-                    "|" + transaction.getTime().format(TIME_FMT) +
-                    "|" + transaction.getDescription() +
-                    "|" + transaction.getVendor() +
-                    "|" + String.format("%.2f", transaction.getAmount()) +
-                    "|" + transaction.getCategory());
-
-            bw.newLine();
-            bw.close();
-
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_NAME, true))) {
+            // appends new transaction line to the end of the file
+            writeTransactionLine(bw, transaction);
         } catch (IOException e) {
             System.out.println("⚠️ Error saving transaction");
         }
+    }
+
+    /**
+     * Rewrites the whole file from the in-memory transactions list.
+     * Needed after an edit or delete, since those change/remove a line
+     * that isn't necessarily the last one in the file.
+     * */
+    private static void rewriteTransactionsFile() {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_NAME, false))) {
+            for (Transaction transaction : transactions) {
+                writeTransactionLine(bw, transaction);
+            }
+        } catch (IOException e) {
+            System.out.println("Error saving transactions");
+        }
+    }
+
+    /**
+     * Writes a single transaction as a line in the CSV format.
+     *
+     * @param bw the writer to write to
+     * @param transaction the transaction to serialize
+     * */
+    private static void writeTransactionLine(BufferedWriter bw, Transaction transaction) throws IOException {
+        bw.write(transaction.getId() +
+                "|" + transaction.getDate().format(DATE_FMT) +
+                "|" + transaction.getTime().format(TIME_FMT) +
+                "|" + transaction.getDescription() +
+                "|" + transaction.getVendor() +
+                "|" + String.format("%.2f", transaction.getAmount()) +
+                "|" + transaction.getCategory());
+        bw.newLine();
     }
 
     /* ------------------------------------------------------------------
@@ -266,6 +289,176 @@ public class FinancialTracker {
                 case "R" -> reportsMenu(scanner);
                 case "H" -> running = false;
                 default -> System.out.println("⚠️ Invalid option");
+            }
+        }
+    }
+
+    /* ------------------------------------------------------------------
+       Edit / Delete menu
+       ------------------------------------------------------------------ */
+    /**
+     * Displays the edit/delete menu and lets the user navigate it.
+     *
+     * @param scanner Used to read user navigation commands
+     * */
+    private static void editDeleteMenu(Scanner scanner) {
+        boolean running = true;
+        while (running) {
+            System.out.println("\nEdit/Delete Transaction");
+            System.out.println("Choose an option:");
+            System.out.println("E) Edit");
+            System.out.println("D) Delete");
+            System.out.println("H) Home");
+
+            String input = scanner.nextLine().trim();
+
+            switch (input.toUpperCase()) {
+                case "E" -> editTransaction(scanner);
+                case "D" -> deleteTransaction(scanner);
+                case "H" -> running = false;
+                default -> System.out.println("Invalid option");
+            }
+        }
+    }
+
+    /**
+     * Shows the ledger, asks for a transaction id, then walks through each
+     * field letting the user keep the current value (Enter) or replace it.
+     *
+     * @param scanner Used to read user input
+     * */
+    private static void editTransaction(Scanner scanner) {
+        displayLedger();
+
+        System.out.print("\nEnter ID to edit: ");
+        int id;
+        try {
+            id = Integer.parseInt(scanner.nextLine().trim());
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid ID.");
+            return;
+        }
+
+        Transaction transaction = findTransactionById(id);
+        if (transaction == null) {
+            System.out.println("No transaction found with ID " + id);
+            return;
+        }
+
+        System.out.println("Editing transaction " + id + ". Press Enter to keep the current value.");
+
+        System.out.print("Date and time (yyyy-MM-dd HH:mm:ss) [" +
+                transaction.getDate().format(DATE_FMT) + " " + transaction.getTime().format(TIME_FMT) + "]: ");
+        String dateTimeInput = scanner.nextLine().trim();
+        if (!dateTimeInput.isBlank()) {
+            try {
+                LocalDateTime dateTime = LocalDateTime.parse(dateTimeInput, DATETIME_FMT);
+                transaction.setDate(dateTime.toLocalDate());
+                transaction.setTime(dateTime.toLocalTime());
+            } catch (Exception e) {
+                System.out.println("Invalid date/time, keeping current value.");
+            }
+        }
+
+        System.out.print("Description [" + transaction.getDescription() + "]: ");
+        String description = scanner.nextLine().trim();
+        if (!description.isBlank()) transaction.setDescription(description);
+
+        System.out.print("Vendor [" + transaction.getVendor() + "]: ");
+        String vendor = scanner.nextLine().trim();
+        if (!vendor.isBlank()) transaction.setVendor(vendor);
+
+        System.out.print("Amount [" + String.format("%.2f", transaction.getAmount()) + "]: ");
+        String amountInput = scanner.nextLine().trim();
+        if (!amountInput.isBlank()) {
+            try {
+                transaction.setAmount(Double.parseDouble(amountInput));
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid amount, keeping current value.");
+            }
+        }
+
+        transaction.setCategory(editCategory(scanner, transaction.getCategory()));
+
+        rewriteTransactionsFile();
+        System.out.println("Transaction updated successfully.");
+    }
+
+    /**
+     * Shows the ledger, asks for a transaction id, confirms with the user,
+     * then removes the matching transaction.
+     *
+     * @param scanner Used to read user input
+     * */
+    private static void deleteTransaction(Scanner scanner) {
+        displayLedger();
+
+        System.out.print("\nEnter ID to delete: ");
+        int id;
+        try {
+            id = Integer.parseInt(scanner.nextLine().trim());
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid ID.");
+            return;
+        }
+
+        Transaction transaction = findTransactionById(id);
+        if (transaction == null) {
+            System.out.println("No transaction found with ID " + id);
+            return;
+        }
+
+        printLedgerHeader();
+        printTransaction(transaction);
+
+        System.out.print("Are you sure you want to delete this transaction? (Y/N): ");
+        String confirm = scanner.nextLine().trim();
+        if (confirm.equalsIgnoreCase("Y")) {
+            transactions.remove(transaction);
+            rewriteTransactionsFile();
+            System.out.println("Transaction deleted successfully.");
+        } else {
+            System.out.println("Delete cancelled.");
+        }
+    }
+
+    /**
+     * Finds a transaction by its id.
+     *
+     * @param id the id to search for
+     * @return the matching Transaction, or null if none found
+     * */
+    private static Transaction findTransactionById(int id) {
+        for (Transaction transaction : transactions) {
+            if (transaction.getId() == id) return transaction;
+        }
+        return null;
+    }
+
+    /**
+     * prompts for a new category, or keeps the current one if left blank
+     *
+     * @param scanner Used to read the user given category type
+     * @param current the transaction's current category, returned if the user presses Enter
+     * @return the CategoryType the user selected, or current if left blank
+     * */
+    private static CategoryType editCategory(Scanner scanner, CategoryType current) {
+        System.out.println("1) Food");
+        System.out.println("2) Gas");
+        System.out.println("3) Entertainment");
+        System.out.println("4) Other");
+        System.out.print("Choose new category [" + current + "], or press Enter to keep current: ");
+
+        while (true) {
+            String input = scanner.nextLine().trim();
+            if (input.isBlank()) return current;
+
+            switch (input) {
+                case "1": return CategoryType.FOOD;
+                case "2": return CategoryType.GAS;
+                case "3": return CategoryType.ENTERTAINMENT;
+                case "4": return CategoryType.OTHER;
+                default: System.out.print("Invalid option. Choose 1-4 or press Enter to keep current: ");
             }
         }
     }
@@ -311,8 +504,8 @@ public class FinancialTracker {
      * Prints formatted header for the ledger categories.
      * */
     private static void printLedgerHeader () {
-        System.out.printf("%-12s %-10s %-35s %-20s %-12s %s%n", "Date", "Time", "Description", "Vendor", "Category", "Amount in $");
-        System.out.println("-".repeat(95)); // creates line of dashes
+        System.out.printf("%-6s %-12s %-10s %-35s %-20s %-12s %s%n", "ID", "Date", "Time", "Description", "Vendor", "Category", "Amount in $");
+        System.out.println("-".repeat(101)); // creates line of dashes
     }
 
     /**
@@ -321,7 +514,8 @@ public class FinancialTracker {
      * @param transaction takes the transaction that needs to be printed
      * */
     private static void printTransaction(Transaction transaction) {
-        System.out.printf("%-12s %-10s %-35s %-20s %-12s %.2f%n", // assigns and holds x amount of spaces starting from the left
+        System.out.printf("%-6s %-12s %-10s %-35s %-20s %-12s %.2f%n", // assigns and holds x amount of spaces starting from the left
+                transaction.getId(),
                 transaction.getDate().format(DATE_FMT),
                 transaction.getTime().format(TIME_FMT),
                 transaction.getDescription(),
