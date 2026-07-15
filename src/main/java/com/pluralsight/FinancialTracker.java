@@ -699,8 +699,8 @@ public class FinancialTracker {
         for (Transaction transaction : transactions) {
             if (start != null && transaction.getDate().isBefore(start)) continue;
             if (end != null && transaction.getDate().isAfter(end)) continue;
-            if (!description.isBlank() && !transaction.getDescription().equalsIgnoreCase(description)) continue;
-            if (!vendorName.isBlank() && !transaction.getVendor().equalsIgnoreCase(vendorName)) continue;
+            if (!description.isBlank() && !transaction.getDescription().toLowerCase().contains(description.toLowerCase())) continue;
+            if (!vendorName.isBlank() && !transaction.getVendor().toLowerCase().contains(vendorName.toLowerCase())) continue;
             if (amount != null && transaction.getAmount() != amount) continue;
             printTransaction(transaction);
             found = true;
