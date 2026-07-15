@@ -215,6 +215,7 @@ public class FinancialTracker {
             // creates buffered writer and appends all changes to file
             BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_NAME, true));
 
+
             // writes new object into file
             bw.write(transaction.getDate().format(DATE_FMT) +
                     "|" + transaction.getTime().format(TIME_FMT) +
