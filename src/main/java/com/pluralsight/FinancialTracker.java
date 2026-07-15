@@ -39,9 +39,9 @@ public class FinancialTracker {
 
         while (running) {
             //Coloredtext method is called here and you can just type the color you want
-            System.out.println(coloredText("╔═══════════════════════════════════╗", Colors.GREEN));
+            System.out.println(coloredText("\n"+"╔═══════════════════════════════════╗", Colors.GREEN));
             System.out.println(coloredText("║      Welcome to TransactionApp    ║", Colors.GREEN));
-            System.out.println(coloredText("╚═══════════════════════════════════╝", Colors.GREEN));
+            System.out.println(coloredText("╚═══════════════════════════════════╝", Colors.GREEN) + "\n");
 
             System.out.println("Choose an option:");
             System.out.println(coloredText("D)", Colors.RED) + " Add Deposit");
@@ -138,7 +138,7 @@ public class FinancialTracker {
 
             // make sure amount is positive
             if (amount <= 0) {
-                System.out.println("Deposit amount must be positive.");
+                System.out.println("\n" + coloredText("Deposit amount must be positive.",Colors.RED) +"\n");
                 return;
             }
             // creates transaction object using parsed data from file
@@ -148,9 +148,9 @@ public class FinancialTracker {
 
             saveTransaction(transaction); // saves changes to the file
 
-            System.out.println("Deposit added successfully.");
+            System.out.println("\n" + coloredText("Deposit added successfully.",Colors.GREEN)+ "\n");
         } catch (Exception e) {
-            System.out.println("Invalid input. Deposit not added.");
+            System.out.println("\n" + coloredText("Invalid input. Deposit not added.", Colors.RED) +"\n");
         }
     }
 
@@ -182,7 +182,7 @@ public class FinancialTracker {
 
             // make sure amount is positive
             if (amount <= 0) {
-                System.out.println("Payment amount must be positive.");
+                System.out.println("\n" + coloredText("Payment amount must be positive.", Colors.RED) +"\n");
                 return;
             }
             //negate the payment entered
@@ -194,9 +194,9 @@ public class FinancialTracker {
 
             saveTransaction(transaction); // saves changes to the file
 
-            System.out.println("Payment added successfully.");
+            System.out.println("\n" + coloredText("Payment added successfully.", Colors.GREEN) +"\n");
         } catch (Exception e) {
-            System.out.println("Invalid input. Payment not added.");
+            System.out.println("\n" + coloredText("Invalid input. Payment not added.", Colors.RED) +"\n");
         }
     }
 
@@ -221,7 +221,7 @@ public class FinancialTracker {
             bw.close();
 
         } catch (IOException e) {
-            System.out.println("Error saving transaction");
+            System.out.println("\n" + coloredText("Error saving transaction", Colors.RED) +"\n");
         }
     }
 
@@ -240,13 +240,16 @@ public class FinancialTracker {
 
         boolean running = true;
         while (running) {
-            System.out.println("\nLedger");
+            System.out.println("\n"+coloredText("╔═══════════════════════════════════╗", Colors.GREEN));
+            System.out.println(coloredText("║           Ledger Menu             ║", Colors.GREEN));
+            System.out.println(coloredText("╚═══════════════════════════════════╝", Colors.GREEN) + "\n");
+
             System.out.println("Choose an option:");
-            System.out.println("A) All");
-            System.out.println("D) Deposits");
-            System.out.println("P) Payments");
-            System.out.println("R) Reports");
-            System.out.println("H) Home");
+            System.out.println(coloredText("A)", Colors.RED) + "All");
+            System.out.println(coloredText("D)", Colors.RED) + "Deposits");
+            System.out.println(coloredText("P)", Colors.RED) + "Payments");
+            System.out.println(coloredText("R)", Colors.RED) + "Reports");
+            System.out.println(coloredText("D)", Colors.RED) + "Home");
 
             String input = scanner.nextLine().trim();
 
@@ -256,7 +259,7 @@ public class FinancialTracker {
                 case "P" -> displayPayments();
                 case "R" -> reportsMenu(scanner);
                 case "H" -> running = false;
-                default -> System.out.println("Invalid option");
+                default -> System.out.println(coloredText("Invalid option", Colors.RED));
             }
         }
     }
@@ -330,15 +333,18 @@ public class FinancialTracker {
     private static void reportsMenu(Scanner scanner) {
         boolean running = true;
         while (running) {
-            System.out.println("\nReports");
+            System.out.println("\n"+coloredText("╔═══════════════════════════════════╗", Colors.GREEN));
+            System.out.println(coloredText("║           Report Menu             ║", Colors.GREEN));
+            System.out.println(coloredText("╚═══════════════════════════════════╝", Colors.GREEN) + "\n");
+
             System.out.println("Choose an option:");
-            System.out.println("1) Month To Date");
-            System.out.println("2) Previous Month");
-            System.out.println("3) Year To Date");
-            System.out.println("4) Previous Year");
-            System.out.println("5) Search by Vendor");
-            System.out.println("6) Custom Search");
-            System.out.println("0) Back");
+            System.out.println(coloredText("1)", Colors.RED) + "Month To Date");
+            System.out.println(coloredText("2)", Colors.RED) + "Previous Month");
+            System.out.println(coloredText("3)", Colors.RED) + "Year To Date");
+            System.out.println(coloredText("4)", Colors.RED) + "Previous Year");
+            System.out.println(coloredText("5)", Colors.RED) + "Search by Vendor");
+            System.out.println(coloredText("6)", Colors.RED) + "Custom Search");
+            System.out.println(coloredText("0)", Colors.RED) + "Back");
 
             String input = scanner.nextLine().trim();
 
@@ -350,7 +356,7 @@ public class FinancialTracker {
                 case "5" -> {searchByVendor(scanner); }
                 case "6" -> customSearch(scanner);
                 case "0" -> running = false;
-                default -> System.out.println("Invalid option");
+                default -> System.out.println(coloredText("Invalid option", Colors.RED));
             }
         }
     }
